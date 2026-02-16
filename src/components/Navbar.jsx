@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { Menu, X, Home, Users, Briefcase, FolderOpen, Phone } from 'lucide-react';
+import { Menu, X, Home, Users, Briefcase, FolderOpen, Phone, Wrench, Award, Star } from 'lucide-react';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('/');
-
+ 
+  const{t}= useTranslation();
   // قائمة الروابط مع الأيقونات (اختياري)
   const navLinks = [
-    { name: 'Startseite', path: '/', icon: Home },
-  
-    { name: 'Kontakt', path: '#', icon: Phone }
+    { name: t("nav.home"), path: '/', icon: Home },
+    { name: t("nav.services"), path: '/#services', icon: Wrench },
+    { name: t("nav.quality"), path: '/#quality', icon: Award },
+    { name: t("nav.features"), path: '/#features', icon: Star },
+    { name: t("nav.contact"), path: '/#contact', icon: Phone }
   ];
 
   const handleLinkClick = (path) => {
@@ -18,9 +23,11 @@ function Navbar() {
   };
 
   return (
-    <nav className="w-full bg-white shadow-md fixed h-[100px] top-0 left-0 right-0 z-50" >
-      <div className="container mx-auto  py-6">
-        <div className="flex items-center justify-between">
+
+ <nav className="bg-white shadow-md fixed w-full top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+             <div className="flex items-center w-full  justify-between">
           {/* Logo */}
           <a 
             href="/" 
@@ -31,7 +38,7 @@ function Navbar() {
           </a>
 
           {/* Desktop Menu */}
-          <ul className="hidden md:flex items-center gap-8 font-semibold text-start" >
+          <ul className="hidden lg:flex items-center  gap-8 font-semibold " >
             {navLinks.map((link) => (
               <li key={link.path}>
                 <a 
@@ -41,7 +48,7 @@ function Navbar() {
                     transition-colors duration-300 relative group
                     ${activeLink === link.path 
                       ? 'text-[#f2a057] border-2 border-[#f2a057]  px-2 py-1' 
-                      : 'text-slate-700 hover:text-blue-600'
+                      : 'text-slate-700 hover:text-[#f2a057]'
                     }
                   `}
                 >
@@ -52,72 +59,63 @@ function Navbar() {
             ))}
           </ul>
 
-      
-
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
             aria-label="Toggle menu"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-        </div>
 
-        {/* Mobile Menu */}
-        {isOpen && (
-          <ul className="md:hidden flex flex-col gap-2 mt-4 py-4 border-t border-slate-200 animate-slide-down" dir="rtl">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              return (
+          {isOpen && (
+            <ul className="absolute top-full left-0 w-full bg-white shadow-md flex flex-col items-start gap-4 py-4 px-5 lg:hidden">
+              {navLinks.map((link) => (
                 <li key={link.path}>
                   <a 
                     href={link.path} 
                     onClick={() => handleLinkClick(link.path)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all
-                      ${activeLink === link.path
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-slate-700 hover:bg-blue-50 hover:text-blue-600'
+                      transition-colors duration-300 relative group
+                      ${activeLink === link.path 
+                        ? 'text-[#f2a057] border-2 border-[#f2a057]  px-2 py-1' 
+                        : 'text-slate-700 hover:text-[#f2a057]'
                       }
                     `}
                   >
-                    <Icon className="w-5 h-5" />
                     {link.name}
                   </a>
                 </li>
-              );
-            })}
-            <li className="mt-2">
-              <a 
-                href="/quote" 
-                onClick={() => handleLinkClick('/quote')}
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-slate-900 to-blue-900 text-white text-center font-bold rounded-lg shadow-lg"
-              >
-                اطلب عرض سعر
-              </a>
-            </li>
-          </ul>
-        )}
-      </div>
+              ))}
+              <div className='flex items-center gap-2'>
+          <a href="/quote">
+              <button className="bg-[#f2a057]  text-white px-6 py-2 cursor-pointer rounded-lg font-semibold hover:bg-orange-300 transition">
+               {t("nav.getQuote")}
+              </button>
+            </a>
+          <LanguageSwitcher/>
+            </div>
+            </ul>
+          )}
 
-      <style jsx>{`
-        @keyframes slide-down {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-slide-down {
-          animation: slide-down 0.3s ease-out;
-        }
-      `}</style>
-    </nav>
+
+          <div className=' items-center gap-2 hidden lg:flex'>
+          <a href="/quote">
+              <button className="bg-[#f2a057]  text-white px-6 py-2 cursor-pointer rounded-lg font-semibold hover:bg-orange-300 transition">
+               {t("nav.getQuote")}
+              </button>
+            </a>
+          <LanguageSwitcher/>
+            </div>
+        </div>
+            
+
+            
+          </div>
+        </div>
+      </nav>
+
+  
   );
 }
 

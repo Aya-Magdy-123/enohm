@@ -1,20 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
-import EnohmForm from './EnohmForm'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import HomePage from './HomePage';
+import EnohmForm from './EnohmForm';
+import DashboardLayout from './components/DashboardLayout';
+import Main from './admin/Main';
+import Requests from './admin/Requests';
+import './i18n';
+import Login from './Login';
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-   <Router>
-    <Routes>
-      <Route path='/' element={<EnohmForm/>} />
-    </Routes>
-   </Router>
-  )
+// Protected Route
+function ProtectedRoute({ children }) {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  return isAuthenticated ? children : <Navigate to="/login" />;
 }
 
-export default App
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/quote" element={<EnohmForm />} />
+        <Route path="/login" element={<Login />} />
+        
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Main />} />
+          <Route path="requests" element={<Requests />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
