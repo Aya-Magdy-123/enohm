@@ -6,7 +6,7 @@ import Main from './admin/Main';
 import Requests from './admin/Requests';
 import './i18n';
 import Login from './Login';
-import Construction from './components/construction';
+import Construction from './components/Construction';
 import Cladding from './components/Cladding';
 import Renovation from './components/Renovation';
 import HomePreparation from './components/Homepreparation';
