@@ -17,8 +17,8 @@ function Cladding() {
   ];
 
   const images = {
-    main: "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500&h=300&fit=crop",
-    mainLarge: "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500&h=300&fit=crop",
+    main: "https://images.pexels.com/photos/32473242/pexels-photo-32473242.png",
+    mainLarge: "https://images.pexels.com/photos/32473242/pexels-photo-32473242.png",
     thumbs: [
       { src: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=300&h=200&fit=crop", large: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop" },
       { src: "https://images.pexels.com/photos/410696/pexels-photo-410696.jpeg", large: "https://images.pexels.com/photos/410696/pexels-photo-410696.jpeg" },

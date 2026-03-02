@@ -50,7 +50,7 @@ function EnohmForm() {
   try {
     let photoUrls = [];
 
-    // رفع الصور للباك اند الأول
+    // رفع الصور للباك اند 
     if (data.photo.length > 0) {
       const formData = new FormData();
       data.photo.forEach((file) => formData.append("photos", file));
@@ -81,7 +81,7 @@ function EnohmForm() {
 
   } catch (err) {
     console.error(err);
-    toast.error("حصل خطأ، حاول تاني");
+    toast.error("حصل خطأ، جرب مره اخري");
   }
 };
 

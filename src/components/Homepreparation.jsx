@@ -17,12 +17,12 @@ function HomePreparation() {
   ];
 
   const images = {
-    main: "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=700&h=400&fit=crop",
-    mainLarge: "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1400&h=800&fit=crop",
+    main: "https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?w=1280",
+    mainLarge: "https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?w=1280",
     thumbs: [
-      { src: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop", large: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&h=800&fit=crop" },
-      { src: "https://images.unsplash.com/photo-1615529328331-f8917597711f?w=300&h=200&fit=crop", large: "https://images.unsplash.com/photo-1615529328331-f8917597711f?w=1200&h=800&fit=crop" },
-      { src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=300&h=200&fit=crop", large: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop" },
+      { src: "https://images.pexels.com/photos/5691622/pexels-photo-5691622.jpeg?w=1280", large: "https://images.pexels.com/photos/5691622/pexels-photo-5691622.jpeg?w=1280" },
+      { src: "https://images.pexels.com/photos/4246120/pexels-photo-4246120.jpeg?w=1280", large: "https://images.pexels.com/photos/4246120/pexels-photo-4246120.jpeg?w=1280" },
+      { src: "https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg?w=1280", large: "https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg?w=1280" },
     ],
   };
 

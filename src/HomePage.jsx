@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import hero from "/hero.jpg";
 import { Link } from "react-router-dom";
+import { useState, useEffect,useRef} from "react";
 
 function HomePage() {
   const { t, i18n } = useTranslation();
@@ -20,9 +21,9 @@ function HomePage() {
 
   const services = [
     { title: t('services.construction'), description: t('services.constructionDesc'), icon: <Building2 className="w-16 h-16" />, image: "https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg", to: "/construction" },
-    { title: t('services.finishing'), description: t('services.finishingDesc'), icon: <Paintbrush className="w-16 h-16" />, image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500&h=300&fit=crop", to: "/cladding" },
+    { title: t('services.finishing'), description: t('services.finishingDesc'), icon: <Paintbrush className="w-16 h-16" />, image: "https://images.pexels.com/photos/32473242/pexels-photo-32473242.png", to: "/cladding" },
     { title: t('services.renovation'), description: t('services.renovationDesc'), icon: <HardHat className="w-16 h-16" />, image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&h=300&fit=crop", to: "/renovation" },
-    { title: t('services.homeReady'), description: t('services.homeReadyDesc'), icon: <HomeService className="w-16 h-16" />, image: "https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=500&h=300&fit=crop", to: "/home-preparation" }
+    { title: t('services.homeReady'), description: t('services.homeReadyDesc'), icon: <HomeService className="w-16 h-16" />, image: "https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?w=1280", to: "/home-preparation" }
   ];
 
 
@@ -83,6 +84,21 @@ const qualityLevels = [
     guarantees: [t('qualityPages.premium.g1'), t('qualityPages.premium.g2'), t('qualityPages.premium.g3')],
   }
 ];
+const [visible, setVisible] = useState(false);
+    const [activeStep, setActiveStep] = useState(-1);
+    const sectionRef = useRef(null);
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          [0,1,2,3,4].forEach(i => setTimeout(() => setActiveStep(i), i * 180 + 200));
+        }
+      }, { threshold: 0.2 });
+      if (sectionRef.current) observer.observe(sectionRef.current);
+      return () => observer.disconnect();
+    }, []);
+
   const Arrow = isRTL ? ArrowLeft : ArrowRight;
 
   return (
@@ -136,10 +152,10 @@ const qualityLevels = [
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service, index) => (
+                 
               
               <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition duration-300 group">
-                  <Link to={service.to} className="absolute inset-0 z-20" />
-               
+                <Link to={service.to}>
                 <div className="h-48 overflow-hidden relative">
                   <img src={service.image} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-950/80 to-transparent flex items-end justify-center pb-4">
@@ -149,8 +165,9 @@ const qualityLevels = [
                 <div className="p-6">
                   <h3 className="text-2xl font-bold text-blue-950 mb-2">{service.title}</h3>
                   <p className="text-gray-600 leading-relaxed">{service.description}</p>
-                </div>
+                </div>  </Link>
               </div>
+            
             ))}
           </div>
         </div>
@@ -269,37 +286,111 @@ const qualityLevels = [
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-blue-950 mb-4">{t('howItWorks.title')}</h2>
-            <div className="w-24 h-1 bg-[#f2a057] mx-auto mb-6" />
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">{t('howItWorks.subtitle')}</p>
+      <section ref={sectionRef} className="py-20 bg-white">
+  <style>{`
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      0%   { opacity: 0; transform: scale(0.5); }
+      70%  { transform: scale(1.12); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes dash {
+      from { stroke-dashoffset: 16; }
+      to   { stroke-dashoffset: 0; }
+    }
+    @keyframes nudge {
+      0%, 100% { transform: translateX(0); }
+      50%       { transform: translateX(4px); }
+    }
+  `}</style>
+
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    {/* Header — نفسه بالظبط + fadeUp */}
+    <div
+      className="text-center mb-16"
+      style={{ opacity: visible ? 1 : 0, animation: visible ? "fadeUp 0.6s ease forwards" : "none" }}
+    >
+      <h2 className="text-4xl md:text-5xl font-bold text-blue-950 mb-4">{t('howItWorks.title')}</h2>
+      <div className="w-24 h-1 bg-[#f2a057] mx-auto mb-6" />
+      <p className="text-gray-600 text-lg max-w-2xl mx-auto">{t('howItWorks.subtitle')}</p>
+    </div>
+
+    {/* Steps — grid بس على موبايل، flex مع أسهم على desktop */}
+    <div className="flex flex-col md:flex-row items-start justify-center gap-0">
+      {[
+        { step: "1", title: t('howItWorks.step1'), desc: t('howItWorks.step1Desc') },
+        { step: "2", title: t('howItWorks.step2'), desc: t('howItWorks.step2Desc') },
+        { step: "3", title: t('howItWorks.step3'), desc: t('howItWorks.step3Desc') },
+        { step: "4", title: t('howItWorks.step4'), desc: t('howItWorks.step4Desc') },
+        { step: "5", title: t('howItWorks.step5'), desc: t('howItWorks.step5Desc') },
+      ].map((item, index) => (
+        <div key={index} className="flex flex-row md:flex-row items-center flex-1">
+
+          {/* Step — نفس الشكل القديم + أنيميشن */}
+          <div
+            className="text-center flex-1"
+            style={{
+              opacity: activeStep >= index ? 1 : 0,
+              animation: activeStep >= index ? "fadeUp 0.5s ease forwards" : "none",
+            }}
+          >
+            <div
+              className="w-16 h-16 bg-[#f2a057] text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4"
+              style={{
+                animation: activeStep >= index
+                  ? "popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards"
+                  : "none",
+              }}
+            >
+              {item.step}
+            </div>
+            <h3 className="text-lg font-bold text-blue-950 mb-2">{item.title}</h3>
+            <p className="text-gray-600 text-sm">{item.desc}</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-            {[
-              { step: "1", title: t('howItWorks.step1'), desc: t('howItWorks.step1Desc') },
-              { step: "2", title: t('howItWorks.step2'), desc: t('howItWorks.step2Desc') },
-              { step: "3", title: t('howItWorks.step3'), desc: t('howItWorks.step3Desc') },
-              { step: "4", title: t('howItWorks.step4'), desc: t('howItWorks.step4Desc') },
-              { step: "5", title: t('howItWorks.step5'), desc: t('howItWorks.step5Desc') }
-            ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-[#f2a057] text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">{item.step}</div>
-                <h3 className="text-lg font-bold text-blue-950 mb-2">{item.title}</h3>
-                <p className="text-gray-600 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <a href="/quote">
-              <button className="px-10 py-4 bg-[#f2a057] text-white text-lg font-bold rounded-lg shadow-lg hover:bg-orange-600 transform hover:scale-105 transition">
-                {t('howItWorks.startNow')}
-              </button>
-            </a>
-          </div>
+
+          {/* Arrow — بس مش بعد آخر step */}
+          {index < 4 && (
+  <div className="hidden md:flex items-center justify-center flex-shrink-0" style={{ width: 44, marginTop: -40 }}>
+    <svg width="44" height="16" viewBox="0 0 44 16" fill="none">
+      {/* الخط — قصير وما يوصلش للسهم */}
+      <line
+        x1={isRTL ? "34" : "10"} y1="8"
+        x2={isRTL ? "16" : "28"} y2="8"
+        stroke="#f2a057" strokeWidth="2" strokeDasharray="4 3"
+        style={{ animation: activeStep >= index ? "dash 1s linear infinite" : "none" }}
+      />
+      {/* السهم منفصل عن الخط */}
+      <polyline
+        points={isRTL ? "14,3 4,8 14,13" : "30,3 40,8 30,13"}
+        fill="none" stroke="#f2a057" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round"
+        style={{ animation: activeStep >= index ? "nudge 1s ease-in-out infinite" : "none" }}
+      />
+    </svg>
+  </div>
+)}
         </div>
-      </section>
+      ))}
+    </div>
+
+    {/* CTA — نفسه بالظبط */}
+    <div
+      className="text-center mt-12"
+      style={{ opacity: visible ? 1 : 0, animation: visible ? "fadeUp 0.6s ease 1s forwards" : "none" }}
+    >
+      <a href="/quote">
+        <button className="px-10 py-4 bg-[#f2a057] text-white text-lg font-bold rounded-lg shadow-lg hover:bg-orange-600 transform hover:scale-105 transition">
+          {t('howItWorks.startNow')}
+        </button>
+      </a>
+    </div>
+
+  </div>
+</section>
 
       <Footer />
     </div>

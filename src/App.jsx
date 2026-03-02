@@ -25,6 +25,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/quote" element={<EnohmForm />} />
         <Route path="/login" element={<Login />} />
+        
         <Route path="/construction" element={<Construction />} />
         <Route path="/cladding" element={<Cladding />} />
         <Route path="/renovation" element={<Renovation />} />
