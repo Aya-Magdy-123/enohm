@@ -5,6 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // استيراد ملفات JSON
 import translationAR from './locales/ar.json';
 import translationDE from './locales/de.json';
+import translationEn from './locales/en.json';
 
 const resources = {
   ar: {
@@ -12,6 +13,9 @@ const resources = {
   },
   de: {
     translation: translationDE
+  },
+  en: {
+    translation: translationEn
   }
 };
 
@@ -20,7 +24,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'ar',
+    fallbackLng: 'de',
     debug: false,
     interpolation: {
       escapeValue: false

@@ -17,9 +17,8 @@ function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    // محاكاة عملية تسجيل الدخول
     setTimeout(() => {
-      if (formData.email === 'admin@enohm.com' && formData.password === 'admin123') {
+      if (formData.email === 'admin@enohm.com' && formData.password === '123456') {
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('userEmail', formData.email);
         toast.success('تم تسجيل الدخول بنجاح!');

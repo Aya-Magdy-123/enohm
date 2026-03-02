@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Outlet, NavLink } from 'react-router-dom';
 import { LayoutDashboard, FileText, LogOut, Menu, X } from 'lucide-react';
+import LanguageSwitcher from './LanguageSwitcher';
 
 function DashboardLayout() {
   const navigate = useNavigate();
@@ -93,6 +94,7 @@ function DashboardLayout() {
           <h1 className="text-2xl font-bold text-blue-950">لوحة التحكم</h1>
           
           <div className="flex items-center gap-3">
+            <LanguageSwitcher/>
             <div className="text-end">
               <p className="text-sm font-semibold text-gray-700">مرحباً</p>
               <p className="text-xs text-gray-500">{localStorage.getItem('userEmail')}</p>

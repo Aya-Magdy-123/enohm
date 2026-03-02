@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import hero from "/hero.jpg";
+import { db } from "./firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 function EnohmForm() {
   const { t, i18n } = useTranslation();
@@ -40,15 +42,48 @@ function EnohmForm() {
    
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("data:", data);
-    localStorage.setItem("enohmFormData", JSON.stringify(data));
-    toast.success(t('form.success'), {
-      position: "top-right",
-      autoClose: 3000,
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    let photoUrls = [];
+
+    // رفع الصور للباك اند الأول
+    if (data.photo.length > 0) {
+      const formData = new FormData();
+      data.photo.forEach((file) => formData.append("photos", file));
+
+      const res = await fetch(`${baseUrl}/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await res.json();
+      photoUrls = result.urls;
+    }
+
+    // حفظ الداتا في Firestore
+    await addDoc(collection(db, "requests"), {
+      serviceType: data.serviceType,
+      qualityLevel: data.qualityLevel,
+      location: data.location,
+      area: data.area,
+      notes: data.notes,
+      name: data.name,
+      phoneNumber: data.phoneNumber,
+      photos: photoUrls,       // الـ URLs اللي رجعت من السيرفر
+      createdAt: serverTimestamp(),
     });
-  };
+
+    toast.success(t('form.success'));
+
+  } catch (err) {
+    console.error(err);
+    toast.error("حصل خطأ، حاول تاني");
+  }
+};
 
   const removePhoto = (index) => {
     const newPhotos = data.photo.filter((_, idx) => idx !== index);
