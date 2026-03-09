@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Menu, X, Home, Users, Briefcase, FolderOpen, Phone, Wrench, Award, Star } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,7 @@ function Navbar() {
   return (
 
  <nav className="bg-white shadow-md fixed w-full top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-10">
           <div className="flex justify-between items-center h-20">
              <div className="flex items-center w-full  justify-between">
           {/* Logo */}
@@ -38,7 +39,7 @@ function Navbar() {
           </a>
 
           {/* Desktop Menu */}
-          <ul className="hidden lg:flex items-center  gap-8 font-semibold " >
+          <ul className="hidden lg:flex items-center  gap-10 font-semibold " >
             {navLinks.map((link) => (
               <li key={link.path}>
                 <a 
@@ -87,8 +88,12 @@ function Navbar() {
                   </a>
                 </li>
               ))}
-              <div className='flex items-center gap-2'>
-          <a href="/quote">
+              <div className='flex text-[11px] items-center gap-1'>
+                <Link to="/login" className="bg-slate-800 text-white px-6 py-2 cursor-pointer rounded-lg font-semibold hover:bg-slate-700 transition">
+              {t("nav.login")}
+            </Link>
+
+          <a href="/quote">         
               <button className="bg-[#f2a057]  text-white px-6 py-2 cursor-pointer rounded-lg font-semibold hover:bg-orange-300 transition">
                {t("nav.getQuote")}
               </button>
@@ -97,9 +102,13 @@ function Navbar() {
             </div>
             </ul>
           )}
-
+           
 
           <div className=' items-center gap-2 hidden lg:flex'>
+            <Link to="/login" className="bg-slate-800 text-white px-6 py-2 cursor-pointer rounded-lg font-semibold hover:bg-slate-700 transition">
+              {t("nav.login")}
+            </Link>
+
           <a href="/quote">
               <button className="bg-[#f2a057]  text-white px-6 py-2 cursor-pointer rounded-lg font-semibold hover:bg-orange-300 transition">
                {t("nav.getQuote")}
@@ -107,6 +116,7 @@ function Navbar() {
             </a>
           <LanguageSwitcher/>
             </div>
+
         </div>
             
 

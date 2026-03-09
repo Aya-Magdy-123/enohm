@@ -5,7 +5,8 @@
     "quality": "Qualitätsstufen",
     "features": "Über uns",
     "contact": "Kontakt",
-    "getQuote": "Angebot anfordern"
+    "getQuote": "Angebot anfordern",
+    "login": "Anmelden"
   },
   "hero": {
     "title": "Ihr Partner für",
@@ -145,7 +146,11 @@
     "noRequests": "Keine Anfragen gefunden",
     "noRequestsDesc": "Keine Anfragen entsprechen Ihrer Suche",
     "statusCompleted": "Abgeschlossen",
-    "statusPending": "In Bearbeitung"
+    "statusPending": "In Bearbeitung",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt",
+    "inProgress": "In Bearbeitung",
+    "called": "Kontakt aufgenommen"
   },
 
   "qualityPages": {
@@ -278,6 +283,256 @@
   "f3Desc": "Wartung und Installation von Türen und Fenstern mit ordnungsgemäßer Dämmung",
   "f4Title": "Bezugsfertige Übergabe",
   "f4Desc": "Übergabe des Hauses sauber und bezugsfertig nach Abschluss der Arbeiten"
-}
+},
+
+
+  "settings": {
+    "pageTitle": "Kontoeinstellungen",
+    "pageSubtitle": "Sehen Sie Ihre Kontodaten ein und verwalten Sie Ihr Passwort.",
+    "name": "Name",
+    "email": "E-Mail-Adresse",
+    "password": "Passwort",
+    "changePassword": "Passwort ändern"
+  },
+  "admins": {
+    "title": "Administratoren",
+    "subtitle": "Sie können einen neuen Administrator hinzufügen und vorhandene einsehen.",
+    "addAdmin": "Administrator hinzufügen",
+    "adminNamePlaceholder": "Administratorname",
+    "emailPlaceholder": "E-Mail-Adresse",
+    "add": "Hinzufügen",
+    "noName": "Kein Name",
+    "adminBadge": "Admin"
+  },
+  "toast": {
+    "nameUpdated": "Name erfolgreich aktualisiert",
+    "nameSaveError": "Beim Speichern ist ein Fehler aufgetreten",
+    "passwordResetSent": "Ein Link zum Zurücksetzen des Passworts wurde an Ihre E-Mail gesendet",
+    "passwordResetError": "Link konnte nicht gesendet werden, bitte erneut versuchen",
+    "adminAdded": "Administrator erfolgreich hinzugefügt — Standardpasswort: 123456",
+    "emailRequired": "E-Mail-Adresse ist erforderlich",
+    "serverError": "Verbindung zum Server nicht möglich",
+    "genericError": "Ein Fehler ist aufgetreten"
+  },
+  "employees": {
+    "roles": {
+      "siteEngineer": "Baustelleningenieur",
+      "supervisor": "Aufseher",
+      "technician": "Techniker",
+      "accountant": "Buchhalter",
+      "projectManager": "Projektleiter",
+      "workers": "Arbeiter"
+    },
+    "departments": {
+      "construction": "Bauwesen",
+      "finishing": "Ausbau",
+      "restoration": "Restaurierung",
+      "administration": "Verwaltung",
+      "finance": "Finanzen"
+    },
+    "stats": {
+      "total": "Mitarbeiter gesamt",
+      "active": "Aktive Mitarbeiter",
+      "inactive": "Inaktiv"
+    },
+    "search": {
+      "placeholder": "Nach Name, Stelle oder Telefon suchen..."
+    },
+    "buttons": {
+      "refresh": "Aktualisieren",
+      "addEmployee": "Mitarbeiter hinzufügen",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "update": "Aktualisieren",
+      "delete": "Löschen",
+      "restore": "Wiederherstellen"
+    },
+    "tabs": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "table": {
+      "index": "#",
+      "employee": "Mitarbeiter",
+      "department": "Abteilung",
+      "phone": "Telefon",
+      "email": "E-Mail",
+      "status": "Status",
+      "actions": "Aktionen",
+      "totalResults": "Gesamtergebnisse",
+      "employeeUnit": "Mitarbeiter"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "empty": {
+      "title": "Keine Mitarbeiter gefunden",
+      "subtitle": "Fügen Sie einen neuen Mitarbeiter hinzu, um zu beginnen"
+    },
+    "addModal": {
+      "title": "Neuen Mitarbeiter hinzufügen",
+      "fullName": "Vollständiger Name *",
+      "fullNamePlaceholder": "Name des Mitarbeiters",
+      "phone": "Telefonnummer *",
+      "phonePlaceholder": "Telefonnummer",
+      "email": "E-Mail-Adresse",
+      "department": "Abteilung",
+      "departmentPlaceholder": "Abteilung auswählen",
+      "status": "Status"
+    },
+    "editModal": {
+      "title": "Mitarbeiterdaten bearbeiten"
+    },
+    "deleteModal": {
+      "title": "Löschen bestätigen",
+      "message": "Sind Sie sicher, dass Sie diesen Mitarbeiter löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "restoreModal": {
+      "title": "Wiederherstellung bestätigen",
+      "message": "Sind Sie sicher, dass Sie diesen Mitarbeiter wiederherstellen möchten?"
+    }
+
+  },
+
+"main": {
+  "stats": {
+    "totalRequests": "Gesamtanfragen",
+    "completedRequests": "Abgeschlossene Anfragen",
+    "incompleteRequests": "Nicht abgeschlossen",
+    "completionRate": "Abschlussquote"
+  },
+  "chart": {
+    "title": "Anfragen im Jahresverlauf",
+    "subtitle": "Monatliche Statistiken",
+    "requestCount": "Anfragen",
+    "yearPlaceholder": "Jahr auswählen",
+    "legend": {
+      "completed": "Abgeschlossen",
+      "notDone": "Nicht abgeschlossen"
+    },
+    "summary": {
+      "completedInYear": "Abgeschlossen in",
+      "incompleteInYear": "Nicht abgeschlossen in"
+    }
+  },
+  "months": {
+    "january": "Januar",
+    "february": "Februar",
+    "march": "März",
+    "april": "April",
+    "may": "Mai",
+    "june": "Juni",
+    "july": "Juli",
+    "august": "August",
+    "september": "September",
+    "october": "Oktober",
+    "november": "November",
+    "december": "Dezember"
+  }
+},
+
+"home": {
+  "stats": {
+    "totalRequests": "Meine Gesamtanfragen",
+    "completed": "Abgeschlossen",
+    "incomplete": "Nicht abgeschlossen"
+  },
+  "chart": {
+    "title": "Abgeschlossene Anfragen im Jahresverlauf",
+    "subtitle": "Monatliche Statistiken",
+    "completedCount": "Abgeschlossen",
+    "requestCompleted": "abgeschlossene Anfrage",
+    "yearPlaceholder": "Jahr auswählen",
+    "summary": "Gesamt abgeschlossen in"
+  }
+},
+
+"employeeSettings": {
+  "title": "Kontoeinstellungen",
+  "role": "Mitarbeiter",
+  "cannotChange": "Nicht änderbar",
+  "fields": {
+    "name": "Name",
+    "email": "E-Mail-Adresse",
+    "phone": "Telefonnummer",
+    "password": "Passwort"
+  },
+  "resetButton": "Link zur Passwortänderung an meine E-Mail senden",
+  "resetHint": "Sie erhalten einen Link an {{email}} zum Zurücksetzen des Passworts",
+  "toast": {
+    "resetSuccess": "Link zum Zurücksetzen des Passworts wurde gesendet",
+    "resetError": "Fehler beim Senden des Links, bitte erneut versuchen"
+  }
+},
+
+"employeeRequests": {
+  "stats": {
+    "total": "Meine Gesamtanfragen",
+    "contacted": "Kontaktiert",
+    "inProgress": "In Bearbeitung",
+    "completed": "Abgeschlossen"
+  },
+  "status": {
+    "contacted": "Kontaktiert",
+    "inProgress": "In Bearbeitung",
+    "completed": "Abgeschlossen",
+    "approved": "Genehmigt"
+  },
+  "services": {
+    "building": "Bau",
+    "cladding": "Verkleidung",
+    "renovation": "Renovierung",
+    "returnPrep": "Rückkehrvorbereitung"
+  },
+  "search": "Nach Name, Serviceart oder Standort suchen...",
+  "filters": "Filter",
+  "refresh": "Aktualisieren",
+  "serviceType": "Serviceart",
+  "requestStatus": "Anfragestatus",
+  "all": "Alle",
+  "tabs": {
+    "all": "Alle",
+    "contacted": "Kontaktiert",
+    "inProgress": "In Bearbeitung",
+    "completed": "Abgeschlossen"
+  },
+  "card": {
+    "location": "Standort",
+    "area": "Fläche",
+    "clientNotes": "Kundennotizen",
+    "myNotes": "Meine Notizen",
+    "photos": "Projektfotos",
+    "updateStatus": "Status aktualisieren"
+  },
+  "empty": {
+    "title": "Keine Anfragen",
+    "allDesc": "Ihnen wurden noch keine Anfragen zugewiesen",
+    "tabDesc": "Keine Anfragen mit dem Status"
+  },
+  "modal": {
+    "title": "Anfragestatus aktualisieren",
+    "client": "Kunde",
+    "serviceType": "Serviceart",
+    "location": "Standort",
+    "currentStatus": "Aktueller Status",
+    "newStatus": "Neuen Status auswählen",
+    "notes": "Notizen",
+    "notesPlaceholder": "Notizen für Phase hinzufügen",
+    "cancel": "Abbrechen",
+    "save": "Aktualisierung speichern"
+  }
+},
+
+"status": {
+    "pending": "In Prüfung",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt",
+    "contacted": "Kontaktiert",
+    "inProgress": "In Bearbeitung",
+    "completed": "Abgeschlossen"
+  }
+
 
 }

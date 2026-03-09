@@ -5,7 +5,8 @@
     "quality": "Quality Levels",
     "features": "Why Choose Us",
     "contact": "Contact Us",
-    "getQuote": "Get a Quote"
+    "getQuote": "Get a Quote",
+    "login": "Login"
   },
   "hero": {
     "title": "Your Partner in",
@@ -143,7 +144,11 @@
     "noRequests": "No Requests Found",
     "noRequestsDesc": "No requests match your search",
     "statusCompleted": "Completed",
-    "statusPending": "Under Review"
+    "statusPending": "Under Review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "inProgress": "In Progress",
+    "called": "Contacted"
   },
 
   "qualityPages": {
@@ -276,6 +281,258 @@
   "f3Desc": "Maintenance and installation of doors and windows with proper insulation",
   "f4Title": "Ready Handover",
   "f4Desc": "Delivering the home clean and ready to live in upon completion"
-}
+},
+
+  "settings": {
+    "pageTitle": "Account Settings",
+    "pageSubtitle": "View your account details and manage your password.",
+    "name": "Name",
+    "email": "Email Address",
+    "password": "Password",
+    "changePassword": "Change Password"
+  },
+  "admins": {
+    "title": "Administrators",
+    "subtitle": "You can add a new administrator and view existing ones.",
+    "addAdmin": "Add Administrator",
+    "adminNamePlaceholder": "Admin Name",
+    "emailPlaceholder": "Email Address",
+    "add": "Add",
+    "noName": "No Name",
+    "adminBadge": "Admin"
+  },
+  "toast": {
+    "nameUpdated": "Name updated successfully",
+    "nameSaveError": "An error occurred while saving",
+    "passwordResetSent": "A password reset link has been sent to your email",
+    "passwordResetError": "Failed to send the link, please try again",
+    "adminAdded": "Administrator added successfully — Default password: 123456",
+    "emailRequired": "Email address is required",
+    "serverError": "Unable to connect to the server",
+    "genericError": "An error occurred"
+},
+  "employees": {
+    "roles": {
+      "siteEngineer": "Site Engineer",
+      "supervisor": "Supervisor",
+      "technician": "Technician",
+      "accountant": "Accountant",
+      "projectManager": "Project Manager",
+      "workers": "Workers"
+    },
+    "departments": {
+      "construction": "Construction",
+      "finishing": "Finishing",
+      "restoration": "Restoration",
+      "administration": "Administration",
+      "finance": "Finance"
+    },
+    "stats": {
+      "total": "Total Employees",
+      "active": "Active Employees",
+      "inactive": "Inactive"
+    },
+    "search": {
+      "placeholder": "Search by name, job title, or phone..."
+    },
+    "buttons": {
+      "refresh": "Refresh",
+      "addEmployee": "Add Employee",
+      "cancel": "Cancel",
+      "save": "Save",
+      "update": "Update",
+      "delete": "Delete",
+      "restore": "Restore"
+    },
+    "tabs": {
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "table": {
+      "index": "#",
+      "employee": "Employee",
+      "department": "Department",
+      "phone": "Phone",
+      "email": "Email",
+      "status": "Status",
+      "actions": "Actions",
+      "totalResults": "Total Results",
+      "employeeUnit": "employee"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "empty": {
+      "title": "No Employees Found",
+      "subtitle": "Add a new employee to get started"
+    },
+    "addModal": {
+      "title": "Add New Employee",
+      "fullName": "Full Name *",
+      "fullNamePlaceholder": "Employee name",
+      "phone": "Phone Number *",
+      "phonePlaceholder": "Phone number",
+      "email": "Email Address",
+      "department": "Department",
+      "departmentPlaceholder": "Select department",
+      "status": "Status"
+    },
+    "editModal": {
+      "title": "Edit Employee Details"
+    },
+    "deleteModal": {
+      "title": "Confirm Delete",
+      "message": "Are you sure you want to delete this employee? This action cannot be undone."
+    },
+    "restoreModal": {
+      "title": "Confirm Restore",
+      "message": "Are you sure you want to restore this employee?"
+    }
+
+
+  }
+,
+
+"main": {
+  "stats": {
+    "totalRequests": "Total Requests",
+    "completedRequests": "Completed Requests",
+    "incompleteRequests": "Incomplete",
+    "completionRate": "Completion Rate"
+  },
+  "chart": {
+    "title": "Requests Throughout the Year",
+    "subtitle": "Monthly Statistics",
+    "requestCount": "Requests",
+    "yearPlaceholder": "Select Year",
+    "legend": {
+      "completed": "Completed",
+      "notDone": "Not Completed"
+    },
+    "summary": {
+      "completedInYear": "Completed in",
+      "incompleteInYear": "Incomplete in"
+    }
+  },
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  }
+},
+
+"home": {
+  "stats": {
+    "totalRequests": "My Total Requests",
+    "completed": "Completed",
+    "incomplete": "Incomplete"
+  },
+  "chart": {
+    "title": "Completed Requests Throughout the Year",
+    "subtitle": "Monthly Statistics",
+    "completedCount": "Completed",
+    "requestCompleted": "completed request",
+    "yearPlaceholder": "Select Year",
+    "summary": "Total completed in"
+  }
+},
+
+"employeeSettings": {
+  "title": "Account Settings",
+  "role": "Employee",
+  "cannotChange": "Cannot be changed",
+  "fields": {
+    "name": "Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "password": "Password"
+  },
+  "resetButton": "Send password reset link to my email",
+  "resetHint": "A reset link will be sent to {{email}}",
+  "toast": {
+    "resetSuccess": "Password reset link has been sent to your email",
+    "resetError": "Failed to send the link, please try again"
+  }
+},
+
+"employeeRequests": {
+  "stats": {
+    "total": "My Total Requests",
+    "contacted": "Contacted",
+    "inProgress": "In Progress",
+    "completed": "Completed"
+  },
+  "status": {
+    "contacted": "Contacted",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "approved": "Approved"
+  },
+  "services": {
+    "building": "Building",
+    "cladding": "Cladding",
+    "renovation": "Renovation",
+    "returnPrep": "Return Preparation"
+  },
+  "search": "Search by name, service type or location...",
+  "filters": "Filters",
+  "refresh": "Refresh",
+  "serviceType": "Service Type",
+  "requestStatus": "Request Status",
+  "all": "All",
+  "tabs": {
+    "all": "All",
+    "contacted": "Contacted",
+    "inProgress": "In Progress",
+    "completed": "Completed"
+  },
+  "card": {
+    "location": "Location",
+    "area": "Area",
+    "clientNotes": "Client Notes",
+    "myNotes": "My Notes",
+    "photos": "Project Photos",
+    "updateStatus": "Update Status"
+  },
+  "empty": {
+    "title": "No Requests",
+    "allDesc": "No requests have been assigned to you yet",
+    "tabDesc": "No requests with status"
+  },
+  "modal": {
+    "title": "Update Request Status",
+    "client": "Client",
+    "serviceType": "Service Type",
+    "location": "Location",
+    "currentStatus": "Current Status",
+    "newStatus": "Select New Status",
+    "notes": "Notes",
+    "notesPlaceholder": "Add your notes for phase",
+    "cancel": "Cancel",
+    "save": "Save Update"
+  }
+},
+
+
+  "status": {
+    "pending": "Under Review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "contacted": "Contacted",
+    "inProgress": "In Progress",
+    "completed": "Completed"
+  }
+
 
 }

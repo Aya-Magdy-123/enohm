@@ -16,3 +16,7 @@
 html{
   scroll-behavior: smooth;
 }
+
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none;
+}

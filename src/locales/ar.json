@@ -5,7 +5,8 @@
     "quality": "مستويات الجودة",
     "features": "مميزاتنا",
     "contact": "اتصل بنا",
-    "getQuote": "اطلب عرض سعر"
+    "getQuote": "اطلب عرض سعر",
+    "login": "تسجيل الدخول"
   },
   "hero": {
     "title": "شريكك في",
@@ -144,7 +145,11 @@
     "noRequests": "لا توجد طلبات",
     "noRequestsDesc": "لم يتم العثور على أي طلبات",
     "statusCompleted": "مكتمل",
-    "statusPending": "قيد المراجعة"
+    "statusPending": "قيد المراجعة",
+    "approved": "موافق عليه",
+    "rejected": "مرفوض",
+    "inProgress": "قيد التقدم",
+    "called": "تم التواصل"
   },
 
   "qualityPages": {
@@ -277,6 +282,258 @@
   "f3Desc": "صيانة وتركيب الأبواب والنوافذ وإحكام العزل",
   "f4Title": "تسليم جاهز",
   "f4Desc": "تسليم المنزل نظيفًا جاهزًا للسكن فور الانتهاء"
-}
+},
+
+
+  "settings": {
+    "pageTitle": "إعدادات الحساب",
+    "pageSubtitle": "اطلع على بيانات حسابك مع إمكانية تغيير كلمة المرور الخاصة",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "changePassword": "تغيير كلمة المرور"
+  },
+  "admins": {
+    "title": "المسؤولون",
+    "subtitle": "يمكنك إضافة مسؤول جديد والاطلاع على المسؤولين الموجودين.",
+    "addAdmin": "إضافة مسؤول",
+    "adminNamePlaceholder": "اسم المسؤول",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "add": "إضافة",
+    "noName": "بدون اسم",
+    "adminBadge": "Admin"
+  },
+  "toast": {
+    "nameUpdated": "تم تحديث الاسم بنجاح",
+    "nameSaveError": "حدث خطأ أثناء الحفظ",
+    "passwordResetSent": "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك",
+    "passwordResetError": "فشل إرسال الرابط، حاول مجدداً",
+    "adminAdded": "تم إضافة المسؤول بنجاح — كلمة المرور الافتراضية: 123456",
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "serverError": "تعذر الاتصال بالخادم",
+    "genericError": "حدث خطأ"
+  
+},
+
+
+  "employees": {
+    "roles": {
+      "siteEngineer": "مهندس موقع",
+      "supervisor": "مشرف",
+      "technician": "فني",
+      "accountant": "محاسب",
+      "projectManager": "مدير مشروع",
+      "workers": "عمال"
+    },
+    "departments": {
+      "construction": "الإنشاءات",
+      "finishing": "الإكساء",
+      "restoration": "الترميم",
+      "administration": "الإدارة",
+      "finance": "المالية"
+    },
+    "stats": {
+      "total": "إجمالي الموظفين",
+      "active": "الموظفون النشطون",
+      "inactive": "غير نشطين"
+    },
+    "search": {
+      "placeholder": "ابحث بالاسم أو الوظيفة أو الهاتف..."
+    },
+    "buttons": {
+      "refresh": "تحديث",
+      "addEmployee": "إضافة موظف",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "update": "تحديث",
+      "delete": "حذف",
+      "restore": "استعادة"
+    },
+    "tabs": {
+      "all": "الكل",
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "table": {
+      "index": "#",
+      "employee": "الموظف",
+      "department": "القسم",
+      "phone": "الهاتف",
+      "email": "البريد",
+      "status": "الحالة",
+      "actions": "إجراءات",
+      "totalResults": "إجمالي النتائج",
+      "employeeUnit": "موظف"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "empty": {
+      "title": "لا يوجد موظفون",
+      "subtitle": "قم بإضافة موظف جديد للبدء"
+    },
+    "addModal": {
+      "title": "إضافة موظف جديد",
+      "fullName": "الاسم الكامل *",
+      "fullNamePlaceholder": "اسم الموظف",
+      "phone": "رقم الهاتف *",
+      "phonePlaceholder": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "department": "القسم",
+      "departmentPlaceholder": "اختر القسم",
+      "status": "الحالة"
+    },
+    "editModal": {
+      "title": "تعديل بيانات الموظف"
+    },
+    "deleteModal": {
+      "title": "تأكيد الحذف",
+      "message": "هل أنت متأكد من حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "restoreModal": {
+      "title": "تأكيد الاستعادة",
+      "message": "هل أنت متأكد من استعادة هذا الموظف؟"
+    }
+
+  },
+
+  "main": {
+  "stats": {
+    "totalRequests": "إجمالي الطلبات",
+    "completedRequests": "الطلبات المكتملة",
+    "incompleteRequests": "غير المكتملة",
+    "completionRate": "نسبة الإنجاز"
+  },
+  "chart": {
+    "title": "الطلبات خلال العام",
+    "subtitle": "إحصائيات شهرية",
+    "requestCount": "طلب",
+    "yearPlaceholder": "اختر السنة",
+    "legend": {
+      "completed": "مكتملة",
+      "notDone": "غير مكتملة"
+    },
+    "summary": {
+      "completedInYear": "مكتملة في",
+      "incompleteInYear": "غير مكتملة في"
+    }
+  },
+  "months": {
+    "january": "يناير",
+    "february": "فبراير",
+    "march": "مارس",
+    "april": "أبريل",
+    "may": "مايو",
+    "june": "يونيو",
+    "july": "يوليو",
+    "august": "أغسطس",
+    "september": "سبتمبر",
+    "october": "أكتوبر",
+    "november": "نوفمبر",
+    "december": "ديسمبر"
+  }
+},
+
+"home": {
+  "stats": {
+    "totalRequests": "إجمالي طلباتي",
+    "completed": "المكتملة",
+    "incomplete": "غير المكتملة"
+  },
+  "chart": {
+    "title": "الطلبات المكتملة خلال العام",
+    "subtitle": "إحصائيات شهرية",
+    "completedCount": "مكتمل",
+    "requestCompleted": "طلب مكتمل",
+    "yearPlaceholder": "اختر السنة",
+    "summary": "إجمالي المكتملة في"
+  }
+},
+
+"employeeSettings": {
+  "title": "إعدادات الحساب",
+  "role": "موظف",
+  "cannotChange": "لا يمكن تغييره",
+  "fields": {
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "password": "كلمة المرور"
+  },
+  "resetButton": "إرسال رابط تغيير كلمة المرور على بريدي",
+  "resetHint": "سيصلك رابط على {{email}} لإعادة تعيين كلمة المرور",
+  "toast": {
+    "resetSuccess": "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك",
+    "resetError": "فشل إرسال الرابط، حاول مجدداً"
+  }
+},
+
+"employeeRequests": {
+  "stats": {
+    "total": "إجمالي طلباتي",
+    "contacted": "تم التواصل",
+    "inProgress": "قيد التنفيذ",
+    "completed": "تم التنفيذ"
+  },
+  "status": {
+    "contacted": "تم التواصل",
+    "inProgress": "قيد التنفيذ",
+    "completed": "تم التنفيذ",
+    "approved": "مقبول"
+  },
+  "services": {
+    "building": "بناء",
+    "cladding": "إكساء",
+    "renovation": "ترميم",
+    "returnPrep": "تجهيز للعودة"
+  },
+  "search": "ابحث بالاسم أو نوع الخدمة أو الموقع...",
+  "filters": "فلاتر",
+  "refresh": "تحديث",
+  "serviceType": "نوع الخدمة",
+  "requestStatus": "حالة الطلب",
+  "all": "الكل",
+  "tabs": {
+    "all": "الكل",
+    "contacted": "تم التواصل",
+    "inProgress": "قيد التقدم",
+    "completed": "تم التنفيذ"
+  },
+  "card": {
+    "location": "الموقع",
+    "area": "المساحة",
+    "clientNotes": "ملاحظات العميل",
+    "myNotes": "ملاحظاتي",
+    "photos": "صور المشروع",
+    "updateStatus": "تحديث الحالة"
+  },
+  "empty": {
+    "title": "لا توجد طلبات",
+    "allDesc": "لم يتم تعيين أي طلبات لك بعد",
+    "tabDesc": "لا توجد طلبات في حالة"
+  },
+  "modal": {
+    "title": "تحديث حالة الطلب",
+    "client": "العميل",
+    "serviceType": "نوع الخدمة",
+    "location": "الموقع",
+    "currentStatus": "الحالة الحالية",
+    "newStatus": "اختر الحالة الجديدة",
+    "notes": "ملاحظات",
+    "notesPlaceholder": "أضف ملاحظاتك لمرحلة",
+    "cancel": "إلغاء",
+    "save": "حفظ التحديث"
+  }
+},
+
+ "status": {
+    "pending": "قيد المراجعة",
+    "approved": "مقبول",
+    "rejected": "مرفوض",
+    "contacted": "تم التواصل",
+    "inProgress": "قيد التنفيذ",
+    "completed": "تم التنفيذ"
+  }
 
 }

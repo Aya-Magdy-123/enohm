@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase';
 
 function Login() {
   const navigate = useNavigate();
@@ -12,25 +14,42 @@ function Login() {
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  let user;
+  let role;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
 
-    setTimeout(() => {
-      if (formData.email === 'admin@enohm.com' && formData.password === '123456') {
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', formData.email);
-        toast.success('تم تسجيل الدخول بنجاح!');
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
-      } else {
-        toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
-      }
-      setIsLoading(false);
-    }, 1500);
-  };
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+    const user = userCredential.user;
+    const tokenResult = await user.getIdTokenResult(true);
+    const role = tokenResult.claims.role || '';
+
+    console.log('User Role:', role); 
+
+    if (role === 'admin') {
+      
+      // toast.success('تم تسجيل الدخول بنجاح!');
+      navigate('/dashboard');
+    } else if (role === 'employee') {
+      toast.success('تم تسجيل الدخول بنجاح!');
+      navigate('/dashboard/home');
+    } else {
+      toast.error('ليس لديك صلاحية للوصول');
+      await auth.signOut(); // اطرده لو مالوش role
+    }
+  } catch (err) {
+    if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+      toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+    } else {
+      toast.error('حدث خطأ، يرجى المحاولة مرة أخرى');
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
