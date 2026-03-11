@@ -5,6 +5,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase';
+import logo from "/logo.webp"
 
 function Login() {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ const handleSubmit = async (e) => {
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-950 to-blue-900 p-8 text-center">
           <img 
-            src="https://enohm.net/wp-content/uploads/2024/06/cropped-gif.webp" 
+            src={logo} 
             className="w-48 h-auto mx-auto mb-4 filter brightness-0 invert"
             alt="Enohm Logo"
           />

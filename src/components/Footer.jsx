@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import logo from "/logo.webp"
 
 function Footer() {
   const { t, i18n } = useTranslation();
@@ -27,7 +28,7 @@ function Footer() {
           {/* Company Info */}
           <div>
             <img 
-              src="https://enohm.net/wp-content/uploads/2024/06/cropped-gif.webp" 
+              src={logo} 
               className='w-[200px] h-[45px] mb-4' 
               alt="Enohm Logo"
             />

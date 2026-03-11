@@ -5,6 +5,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { auth, db } from '../firebase';
 import { collection, getDocs, doc, updateDoc, query, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import logo from "/logo.webp"
 
 function DashboardLayout() {
   const navigate = useNavigate();
@@ -112,7 +113,7 @@ function DashboardLayout() {
         {/* Logo */}
         <div className="p-6 border-b border-blue-800">
           <img
-            src="https://enohm.net/wp-content/uploads/2024/06/cropped-gif.webp"
+            src={logo}
             className="w-40 h-auto mx-auto filter brightness-0 invert"
             alt="Enohm Logo"
           />

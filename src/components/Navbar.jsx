@@ -3,6 +3,7 @@ import { Menu, X, Home, Users, Briefcase, FolderOpen, Phone, Wrench, Award, Star
 import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import logo from "/logo.webp"
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +36,7 @@ function Navbar() {
             className="text-3xl font-black text-slate-900 tracking-tight group"
             onClick={() => handleLinkClick('/')}
           >
-           <img src='https://enohm.net/wp-content/uploads/2024/06/cropped-gif.webp' className='w-[200px] h-[45px] '  />
+           <img src={logo} className='w-[200px] h-[45px] '  />
           </a>
 
           {/* Desktop Menu */}
