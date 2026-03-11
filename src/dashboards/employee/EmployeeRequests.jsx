@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import {
   FileText, Search, Filter, MapPin, Home, Phone,
   Loader2, X, Download, ChevronLeft, ChevronRight,
-  RefreshCw, ClipboardEdit, MessageSquare
+  RefreshCw, ClipboardEdit, MessageSquare, CheckCircle2, XCircle, User
 } from 'lucide-react';
 import { db, auth } from '../../firebase';
-import { collection, getDocs, doc, updateDoc, orderBy, query, where, serverTimestamp, addDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, orderBy, query, serverTimestamp, addDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import Modal from '../../components/Modal';
 import { useTranslation } from 'react-i18next';
 
 /* ══════════════════════════════════════════════
-   حالات الطلب — built inside component to use t()
+   حالات الطلب
 ══════════════════════════════════════════════ */
 const getStatusOptions = (t) => [
   { label: t('employeeRequests.status.contacted'),  value: 'contacted',  notesKey: 'notesForContacted',  badge: 'bg-blue-100 text-blue-700' },
@@ -21,10 +21,10 @@ const getStatusOptions = (t) => [
 
 /* ألوان الخدمات */
 const serviceColors = {
-  'بناء':         { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200',   dot: 'bg-blue-500' },
-  'إكساء':        { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', dot: 'bg-purple-500' },
-  'ترميم':        { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200',  dot: 'bg-amber-500' },
-  'تجهيز للعودة': { bg: 'bg-teal-50',  text: 'text-teal-700',   border: 'border-teal-200',   dot: 'bg-teal-500' },
+  'construction':         { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200',   dot: 'bg-blue-500' },
+  'finishing':        { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', dot: 'bg-purple-500' },
+  'renovation':        { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200',  dot: 'bg-amber-500' },
+  ' homeReady': { bg: 'bg-teal-50',  text: 'text-teal-700',   border: 'border-teal-200',   dot: 'bg-teal-500' },
 };
 const getServiceColor = (type) => {
   for (const key of Object.keys(serviceColors)) if (type?.includes(key)) return serviceColors[key];
@@ -32,7 +32,7 @@ const getServiceColor = (type) => {
 };
 
 /* ══════════════════════════════════════════════
-   مكوّن: عرض كل ملاحظات الموظف مع badge الحالة
+   ملاحظات الموظف
 ══════════════════════════════════════════════ */
 const EmployeeNotes = ({ request }) => {
   const { t } = useTranslation();
@@ -41,7 +41,7 @@ const EmployeeNotes = ({ request }) => {
   const entries = STATUS_OPTIONS
     .map(opt => {
       const note = request[opt.notesKey];
-      return note ? { label: opt.label, badge: opt.badge, note } : null;
+      return note ? { label: opt.label, badge: opt.badge, note, employeeName:  request[`${opt.notesKey}ByName`] } : null;
     })
     .filter(Boolean);
 
@@ -52,12 +52,19 @@ const EmployeeNotes = ({ request }) => {
       <p className="text-xs text-gray-400 font-semibold flex items-center gap-1">
         <MessageSquare className="w-3 h-3" /> {t('employeeRequests.card.myNotes')}
       </p>
-      {entries.map(({ label, badge, note }) => (
+      {entries.map(({ label, badge, note, employeeName }) => (
         <div key={label} className="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5 flex gap-3 items-start">
           <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap mt-0.5 flex-shrink-0 ${badge}`}>
             {label}
           </span>
-          <p className="text-sm text-gray-600 leading-relaxed">{note}</p>
+          <div className="flex-1">
+            <p className="text-sm text-gray-600 leading-relaxed">{note}</p>
+            {employeeName && (
+              <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                <User className="w-3 h-3" /> {employeeName}
+              </p>
+            )}
+          </div>
         </div>
       ))}
     </div>
@@ -67,14 +74,25 @@ const EmployeeNotes = ({ request }) => {
 /* ══════════════════════════════════════════════ */
 
 function EmployeeRequests() {
-  const { t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const STATUS_OPTIONS = getStatusOptions(t);
   const getStatusOpt   = (val) => STATUS_OPTIONS.find(s => s.value === val);
-  const getStatusBadge = (s)   => getStatusOpt(s)?.badge || (s === 'approved' ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-500');
-  const getStatusLabel = (s)   => getStatusOpt(s)?.label || (s === 'approved' ? t('employeeRequests.status.approved') : s || '—');
+  const getStatusBadge = (s)   => {
+    if (s === 'pending')   return 'bg-gray-100 text-gray-600';
+    if (s === 'approved')  return 'bg-teal-100 text-teal-700';
+    if (s === 'rejected')  return 'bg-red-100 text-red-600';
+    return getStatusOpt(s)?.badge || 'bg-gray-100 text-gray-500';
+  };
+  const getStatusLabel = (s)   => {
+    if (s === 'pending')  return t('status.pending');
+    if (s === 'approved') return t('employeeRequests.status.approved');
+    if (s === 'rejected') return t('status.rejected');
+    return getStatusOpt(s)?.label || s || '—';
+  };
 
   const [currentUser, setCurrentUser]     = useState(null);
+  const [employeeName, setEmployeeName]   = useState('');
   const [requests, setRequests]           = useState([]);
   const [loading, setLoading]             = useState(true);
   const [searchQuery, setSearchQuery]     = useState('');
@@ -84,23 +102,39 @@ function EmployeeRequests() {
   const [statusFilter, setStatusFilter]   = useState('');
   const [lightbox, setLightbox]           = useState({ open: false, photos: [], index: 0 });
 
+  /* update modal */
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [newStatus, setNewStatus]             = useState('');
   const [notes, setNotes]                     = useState('');
   const [submitting, setSubmitting]           = useState(false);
 
+  /* approve modal */
+  const [openApprovalModal, setOpenApprovalModal] = useState(false);
+  const [approvingRequest, setApprovingRequest]   = useState(null);
+
+  /* reject modal */
+  const [openRejectModal, setOpenRejectModal] = useState(false);
+  const [rejectingRequest, setRejectingRequest] = useState(null);
+
+  /* ── auth ── */
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => setCurrentUser(user || null));
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setCurrentUser(user);
+        // جيب اسم الموظف من displayName أو email
+        setEmployeeName(user.displayName || user.email || '');
+      }
+    });
     return unsub;
   }, []);
 
-  const fetchData = async (uid) => {
-    if (!uid) return;
+  /* ── fetch كل الطلبات ── */
+  const fetchData = async () => {
     setLoading(true);
     try {
       const snap = await getDocs(
-        query(collection(db, 'requests'), where('employeeId', '==', uid), orderBy('createdAt', 'desc'))
+        query(collection(db, 'requests'), orderBy('createdAt', 'desc'))
       );
       setRequests(snap.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().createdAt || null })));
     } catch (err) { console.error(err); }
@@ -108,9 +142,10 @@ function EmployeeRequests() {
   };
 
   useEffect(() => {
-    if (currentUser) fetchData(currentUser.uid);
+    if (currentUser) fetchData();
   }, [currentUser]);
 
+  /* ── open update modal ── */
   const openUpdate = (request) => {
     setSelectedRequest(request);
     setNewStatus(request.status || '');
@@ -118,6 +153,7 @@ function EmployeeRequests() {
     setOpenUpdateModal(true);
   };
 
+  /* ── save update + إرسال اسم الموظف وid معه ── */
   const handleUpdate = async () => {
     if (!newStatus || !selectedRequest) return;
     setSubmitting(true);
@@ -125,9 +161,14 @@ function EmployeeRequests() {
       const opt = getStatusOpt(newStatus);
       const notesKey = opt?.notesKey;
       const updateData = {
-        status: newStatus,
-        updatedAt: new Date(),
-        ...(notesKey && notes.trim() ? { [notesKey]: notes.trim() } : {}),
+        status:              newStatus,
+        updatedAt:           new Date(),
+        lastUpdatedById:     currentUser.uid,
+        lastUpdatedByName:   employeeName,
+        ...(notesKey && notes.trim() ? {
+          [notesKey]:              notes.trim(),
+          [`${notesKey}ByName`]:   employeeName,
+        } : {}),
       };
       await updateDoc(doc(db, 'requests', selectedRequest.id), updateData);
       setRequests(prev => prev.map(r => r.id === selectedRequest.id ? { ...r, ...updateData } : r));
@@ -135,18 +176,69 @@ function EmployeeRequests() {
       setNewStatus('');
       setNotes('');
       await addDoc(collection(db, 'notifications'), {
-        type: 'updatedRequest',
-        submittedAt: serverTimestamp(),
-        employeeId: selectedRequest.employeeId,
-        employeeName: selectedRequest.employeeName,
-        status: newStatus,
-        client: selectedRequest.name,
-        isRead: false,
+        type:          'updatedRequest',
+        submittedAt:   serverTimestamp(),
+        employeeId:    currentUser.uid,
+        employeeName:  employeeName,
+        status:        newStatus,
+        client:        selectedRequest.name,
+        read:          false,
       });
     } catch (err) { console.error(err); }
     finally { setSubmitting(false); }
   };
 
+  /* ── approve ── */
+  const handleApprove = async () => {
+    if (!approvingRequest) return;
+    setSubmitting(true);
+    try {
+      await updateDoc(doc(db, 'requests', approvingRequest.id), {
+        status:     'approved',
+        approvedAt: serverTimestamp(),
+      });
+      setRequests(prev => prev.map(r => r.id === approvingRequest.id ? { ...r, status: 'approved' } : r));
+      setOpenApprovalModal(false);
+      setApprovingRequest(null);
+    } catch (err) { console.error(err); }
+    finally { setSubmitting(false); }
+  };
+
+
+  const handleReject = async () => {
+    if (!rejectingRequest) return;
+    setSubmitting(true);
+    try {
+     
+        // الموظف رفض → ابعت للأدمن approvedByAdmin: false
+        await updateDoc(doc(db, 'requests', rejectingRequest.id), {
+          approvedByAdmin: false,
+          rejectedByEmployeeAt: serverTimestamp(),
+          rejectedByEmployeeId: currentUser.uid,
+          rejectedByEmployeeName: employeeName,
+          status: "pendingForReject"
+
+        });
+        setRequests(prev => prev.map(r =>
+          r.id === rejectingRequest.id ? { ...r, approvedByAdmin: false, status:"pendingForReject" } : r
+        ));
+        // notification للأدمن
+        await addDoc(collection(db, 'notifications'), {
+          type:         'rejectionRequest',
+          submittedAt:  serverTimestamp(),
+          employeeId:   currentUser.uid,
+          employeeName: employeeName,
+          client:       rejectingRequest.name,
+          read:         false,
+        });
+      
+      setOpenRejectModal(false);
+      setRejectingRequest(null);
+    } catch (err) { console.error(err); }
+    finally { setSubmitting(false); }
+  };
+
+  /* ── lightbox ── */
   const openLightbox  = (photos, index) => setLightbox({ open: true, photos, index });
   const closeLightbox = () => setLightbox({ open: false, photos: [], index: 0 });
   const prevPhoto = () => setLightbox(p => ({ ...p, index: (p.index - 1 + p.photos.length) % p.photos.length }));
@@ -157,38 +249,51 @@ function EmployeeRequests() {
     link.href = URL.createObjectURL(blob); link.download = `photo-${Date.now()}.jpg`; link.click();
   };
 
+  /* ── counts ── */
   const totalCount      = requests.length;
+  const pendingCount    = requests.filter(r => r.status === 'pending').length;
   const contactedCount  = requests.filter(r => r.status === 'contacted').length;
   const inProgressCount = requests.filter(r => r.status === 'inProgress').length;
   const completedCount  = requests.filter(r => r.status === 'completed').length;
+  const approvedCount  = requests.filter(r => r.status === 'approved').length;
 
   const stats = [
-    { title: t('employeeRequests.stats.total'),       value: totalCount,      textColor: 'text-blue-500',  bgLight: 'bg-blue-50' },
-    { title: t('employeeRequests.stats.contacted'),   value: contactedCount,  textColor: 'text-blue-600',  bgLight: 'bg-blue-50' },
-    { title: t('employeeRequests.stats.inProgress'),  value: inProgressCount, textColor: 'text-amber-500', bgLight: 'bg-amber-50' },
-    { title: t('employeeRequests.stats.completed'),   value: completedCount,  textColor: 'text-green-500', bgLight: 'bg-green-50' },
+    { title: t('employeeRequests.stats.total'),      value: totalCount,      textColor: 'text-blue-500',  bgLight: 'bg-blue-50' },
+    { title: t("status.pending"),                          value: pendingCount,    textColor: 'text-gray-500',  bgLight: 'bg-gray-50' },
+    { title: t('employeeRequests.stats.inProgress'), value: inProgressCount, textColor: 'text-amber-500', bgLight: 'bg-amber-50' },
+    { title: t('employeeRequests.stats.completed'),  value: completedCount,  textColor: 'text-green-500', bgLight: 'bg-green-50' },
   ];
 
   const tabs = [
-    { key: 'all',        label: t('employeeRequests.tabs.all'),         count: totalCount },
-    { key: 'contacted',  label: t('employeeRequests.tabs.contacted'),   count: contactedCount },
-    { key: 'inProgress', label: t('employeeRequests.tabs.inProgress'),  count: inProgressCount },
-    { key: 'completed',  label: t('employeeRequests.tabs.completed'),   count: completedCount },
+    { key: 'all',        label: t('employeeRequests.tabs.all'),        count: totalCount },
+    { key: 'pending',    label: t('status.pending'),    count: pendingCount },
+    { key: 'contacted',  label: t('employeeRequests.tabs.contacted'),  count: contactedCount },
+    { key: 'approved',  label: t('status.approved'),  count: approvedCount },
+    { key: 'inProgress', label: t('employeeRequests.tabs.inProgress'), count: inProgressCount },
+    { key: 'completed',  label: t('employeeRequests.tabs.completed'),  count: completedCount },
   ];
 
   const serviceOptions = [
     { key: '', label: t('employeeRequests.all') },
-    { key: 'بناء',         label: t('employeeRequests.services.building') },
-    { key: 'إكساء',        label: t('employeeRequests.services.cladding') },
-    { key: 'ترميم',        label: t('employeeRequests.services.renovation') },
-    { key: 'تجهيز للعودة', label: t('employeeRequests.services.returnPrep') },
+    { key: 'construction',         label: t('employeeRequests.services.building') },
+    { key: 'finishing',        label: t('employeeRequests.services.cladding') },
+    { key: 'renovation',        label: t('employeeRequests.services.renovation') },
+    { key: ' homeReady', label: t('employeeRequests.services.returnPrep') },
   ];
 
+    const serviceTypesLangs= {
+    
+    construction: t("services.construction"),
+    renovation: t("services.renovation"),
+    finishing: t("services.finishing"),
+    homeReady: t("services.homeReady")
+  }
+
   const filteredRequests = requests.filter(r => {
-    const matchTab    = activeTab === 'all' ? true : r.status === activeTab;
-    const matchSearch = r.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        r.serviceType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        r.location?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchTab     = activeTab === 'all' ? true : r.status === activeTab;
+    const matchSearch  = r.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         r.serviceType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         r.location?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchService = serviceFilter ? r.serviceType?.includes(serviceFilter) : true;
     const matchStatus  = statusFilter  ? r.status === statusFilter : true;
     return matchTab && matchSearch && matchService && matchStatus;
@@ -197,7 +302,7 @@ function EmployeeRequests() {
   const selectedStatusOpt = getStatusOpt(newStatus);
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={i18n.language==="ar"? "rtl":"ltr"}>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -227,7 +332,7 @@ function EmployeeRequests() {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${showFilters || serviceFilter || statusFilter ? 'bg-[#f2a057] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
             <Filter className="w-4 h-4" /> {t('employeeRequests.filters')}
           </button>
-          <button onClick={() => fetchData(currentUser?.uid)}
+          <button onClick={fetchData}
             className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-semibold text-gray-600 transition">
             <RefreshCw className="w-4 h-4" /> {t('employeeRequests.refresh')}
           </button>
@@ -267,10 +372,10 @@ function EmployeeRequests() {
 
       {/* Tabs */}
       <div className="bg-white rounded-2xl p-1.5 shadow-sm border border-gray-100 overflow-x-auto">
-        <div className="flex gap-1 w-full">
+        <div className="flex gap-1 w-full ">
           {tabs.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2.5 rounded-xl flex-1 text-sm font-semibold transition whitespace-nowrap ${activeTab === tab.key ? 'bg-[#f2a057] text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
+              className={`px-4 py-2.5 flex-1 rounded-xl text-sm font-semibold transition whitespace-nowrap ${activeTab === tab.key ? 'bg-[#f2a057] text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
               {tab.label}
               <span className={`mx-1.5 px-1.5 py-0.5 rounded-md text-xs ${activeTab === tab.key ? 'bg-white/20' : 'bg-gray-100'}`}>
                 {tab.count}
@@ -288,6 +393,7 @@ function EmployeeRequests() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {filteredRequests.map((request) => {
             const svcColor = getServiceColor(request.serviceType);
+            const isPending = request.status === 'pending';
             return (
               <div key={request.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
 
@@ -295,7 +401,7 @@ function EmployeeRequests() {
                 <div className={`${svcColor.bg} ${svcColor.border} border-b px-5 py-3 flex items-center justify-between`}>
                   <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${svcColor.dot}`}></div>
-                    <span className={`font-bold text-sm ${svcColor.text}`}>{request.serviceType}</span>
+                    <span className={`font-bold text-sm ${svcColor.text}`}>{ serviceTypesLangs[request.serviceType]}</span>
                   </div>
                   <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${getStatusBadge(request.status)}`}>
                     {getStatusLabel(request.status)}
@@ -304,7 +410,6 @@ function EmployeeRequests() {
 
                 {/* Body */}
                 <div className="p-5 space-y-4">
-                  {/* Name + phone */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
@@ -323,7 +428,6 @@ function EmployeeRequests() {
 
                   <div className="border-t border-dashed border-gray-100" />
 
-                  {/* Location + Area */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-gray-50 rounded-xl p-3">
                       <p className="text-xs text-gray-400 mb-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> {t('employeeRequests.card.location')}</p>
@@ -335,7 +439,6 @@ function EmployeeRequests() {
                     </div>
                   </div>
 
-                  {/* Client notes */}
                   {request.notes && (
                     <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
                       <p className="text-xs text-amber-600 font-semibold mb-1">{t('employeeRequests.card.clientNotes')}</p>
@@ -343,10 +446,15 @@ function EmployeeRequests() {
                     </div>
                   )}
 
-                  {/* Employee notes */}
                   <EmployeeNotes request={request} />
 
-                  {/* Photos */}
+                  {/* آخر موظف عدّل */}
+                  {request.lastUpdatedByName && !isPending && (
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <User className="w-3 h-3" /> آخر تحديث بواسطة: <span className="font-semibold text-gray-600">{request.lastUpdatedByName}</span>
+                    </p>
+                  )}
+
                   {request.photos?.length > 0 && (
                     <div>
                       <p className="text-xs text-gray-400 font-semibold mb-2">{t('employeeRequests.card.photos')} ({request.photos.length})</p>
@@ -366,14 +474,29 @@ function EmployeeRequests() {
                 </div>
 
                 {/* Footer */}
-                {request.status !== 'completed' && (
-                  <div className="px-5 pb-4 flex justify-end">
+                <div className="px-5 pb-4 flex justify-end gap-2">
+                  {/* زراير pending */}
+                  {isPending && (
+                    <>
+                      <button onClick={() => { setRejectingRequest(request); setOpenRejectModal(true); }}
+                        className="flex items-center gap-1.5 px-4 py-2.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 rounded-xl text-sm font-bold transition">
+                        <XCircle className="w-4 h-4" /> 
+                      </button>
+                      <button onClick={() => { setApprovingRequest(request); setOpenApprovalModal(true); }}
+                        className="flex items-center gap-1.5 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold transition shadow-sm">
+                        <CheckCircle2 className="w-4 h-4" /> 
+                      </button>
+                    </>
+                  )}
+
+                  {/* زرار تحديث الحالة للطلبات المقبولة */}
+                  {!isPending && request.status !== 'completed' && request.status !== 'rejected' && (
                     <button onClick={() => openUpdate(request)}
                       className="flex items-center gap-2 px-4 py-2.5 bg-blue-950 hover:bg-blue-900 text-white rounded-xl text-sm font-bold transition shadow-sm">
                       <ClipboardEdit className="w-4 h-4" /> {t('employeeRequests.card.updateStatus')}
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}
@@ -416,11 +539,11 @@ function EmployeeRequests() {
         </div>
       )}
 
-      {/* ── UPDATE MODAL ── */}
+      {/* ══════ UPDATE MODAL ══════ */}
       {openUpdateModal && selectedRequest && (
         <Modal onClose={() => setOpenUpdateModal(false)}>
-          <div className="flex flex-col gap-3" dir={i18n.language==="ar"? "rtl":"ltr"}>
-            <h1 className={`font-bold text-xl px-2 text-blue-950 ${i18n.language==="ar"? "border-r-4 border-r-orange-500":"border-l-4 border-l-orange-500"}  py-1`}>
+          <div className="flex flex-col gap-3" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
+            <h1 className={`font-bold text-xl px-2 text-blue-950 ${i18n.language === 'ar' ? 'border-r-4 border-r-orange-500' : 'border-l-4 border-l-orange-500'} py-1`}>
               {t('employeeRequests.modal.title')}
             </h1>
             <hr className="text-gray-200 rounded-full w-full" />
@@ -476,6 +599,89 @@ function EmployeeRequests() {
                 className="px-8 py-2 bg-blue-950 hover:bg-blue-900 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                 {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 {t('employeeRequests.modal.save')}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ══════ APPROVAL MODAL ══════ */}
+      {openApprovalModal && approvingRequest && (
+        <Modal onClose={() => setOpenApprovalModal(false)}>
+          <div className="flex flex-col gap-2">
+            <h1 className="font-bold text-xl px-2 text-blue-950 border-r-4 border-r-orange-600 py-1">{t("approveRequest")} </h1>
+            <hr className="text-gray-200 rounded-full w-full" />
+            <div className="bg-blue-50 py-3 px-4 border-dashed border-blue-300 border rounded-lg">
+              <span className="text-xs bg-orange-300 font-semibold rounded-full px-4">{approvingRequest.serviceType}</span>
+              <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
+                <div className="flex flex-col items-start">
+                  <h3 className="text-gray-500 text-xs"><User className="w-3.5 h-3.5 inline-block ml-1" />{t("clientName")} </h3>
+                  <p className="font-semibold text-sm text-blue-950 mt-0.5">{approvingRequest.name}</p>
+                </div>
+                <div className="flex flex-col items-start">
+                  <h3 className="text-gray-500 text-xs"><Phone className="w-3.5 h-3.5 inline-block ml-1" /> {t("phoneNumber")}</h3>
+                  <p className="font-semibold text-sm text-blue-950 mt-0.5">{approvingRequest.phoneNumber}</p>
+                </div>
+                <div className="flex flex-col items-start">
+                  <h3 className="text-gray-500 text-xs"><MapPin className="w-3.5 h-3.5 inline-block ml-1" />{t("location")}</h3>
+                  <p className="font-semibold text-sm text-blue-950 mt-0.5">{approvingRequest.location || '—'}</p>
+                </div>
+                <div className="flex flex-col items-start">
+                  <h3 className="text-gray-500 text-xs"><Home className="w-3.5 h-3.5 inline-block ml-1" />{t("area")}</h3>
+                  <p className="font-semibold text-sm text-blue-950 mt-0.5">{approvingRequest.area} م<sup>2</sup></p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-3 justify-end">
+              <button onClick={() => setOpenApprovalModal(false)}
+                className="px-5 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
+                {t("cancel")}
+              </button>
+              <button onClick={handleApprove} disabled={submitting}
+                className="px-10 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-bold transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                 {t("acceptRequest")}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ══════ REJECT MODAL ══════ */}
+      {openRejectModal && rejectingRequest && (
+        <Modal onClose={() => setOpenRejectModal(false)}>
+          <div className="flex flex-col gap-4">
+            <h1 className="font-bold text-xl px-2 text-blue-950 border-r-4 border-r-red-500 py-1">{t("rejectRequest")} </h1>
+            <hr className="text-gray-200 rounded-full w-full" />
+            <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                <span className="text-red-600 font-bold text-lg">{rejectingRequest.name?.charAt(0)}</span>
+              </div>
+              <div>
+                <p className="font-bold text-gray-800">{rejectingRequest.name}</p>
+                <p className="text-sm text-gray-500">{rejectingRequest.serviceType} — {rejectingRequest.phoneNumber}</p>
+              </div>
+            </div>
+
+            {rejectingRequest.approvedByAdmin === true ? (
+              <p className="text-sm text-gray-600 text-center">
+               {t("lastUpdateAdminApproved")} <span className="font-bold text-red-600">{t("end")}</span>.
+              </p>
+            ) : (
+              <p className="text-sm text-gray-600 text-center">
+               {t("lastUpdatePendingAdmin")}
+              </p>
+            )}
+
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setOpenRejectModal(false)}
+                className="px-5 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
+                {t("cancel")}
+              </button>
+              <button onClick={handleReject} disabled={submitting}
+                className="px-8 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold transition shadow-sm shadow-red-200 flex items-center gap-2 disabled:opacity-60">
+                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                {rejectingRequest.approvedByAdmin === true ? t("finalRejectConfirm") : t("sendRejectRequest")}
               </button>
             </div>
           </div>

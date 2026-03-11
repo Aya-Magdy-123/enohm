@@ -501,7 +501,7 @@
     "location": "Location",
     "area": "Area",
     "clientNotes": "Client Notes",
-    "myNotes": "My Notes",
+    "myNotes": " Notes",
     "photos": "Project Photos",
     "updateStatus": "Update Status"
   },
@@ -532,7 +532,40 @@
     "contacted": "Contacted",
     "inProgress": "In Progress",
     "completed": "Completed"
-  }
+  },
+
+  "required":"required",
+
+   "pendingRejectionTitle": "Rejected requests awaiting your approval",
+  "pendingRejectionDesc": "requests rejected by the employee and need your decision",
+  "review": "Review",
+  "addNewRequest": "Add new request",
+  "reviewRejectionRequest": "Review rejection request",
+  "approveRequest": "Approve request",
+  "clientName": "Client name",
+  "phoneNumber": "Phone number",
+  "location": "Location",
+  "area": "Area",
+  "cancel": "Cancel",
+  "send": "Send",
+  "rejectRequest": "Reject request",
+  "confirmRejectQuestion": "Are you sure you want to reject this request?",
+  "rejectedStatus": "Rejected",
+  "confirmReject": "Confirm rejection",
+  "reviewRejection": "Review rejection request",
+  "rejectionRequestedByEmployee": "Rejection requested by",
+  "employeeAskedReject": "The employee requested to reject this request. Do you approve the rejection or decline it ?",
+  "later": "Later",
+  "acceptRequest": "Accept request",
+  "approveFinalRejection": "Approve final rejection",
+  "addRequest": "Add new request",
+
+   "lastUpdateAdminApproved": "Admin approved the rejection — the request will be rejected .",
+   "end":"permanently",
+  "lastUpdatePendingAdmin": "The rejection request will be sent to the admin for review. The request will not be permanently rejected until the admin approves.",
+
+   "finalRejectConfirm": "Confirm final rejection",
+  "sendRejectRequest": "Send rejection request"
 
 
 }

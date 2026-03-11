@@ -51,7 +51,7 @@ function Home() {
       setLoading(true);
       try {
         const snap = await getDocs(
-          query(collection(db, 'requests'), where('employeeId', '==', currentUser.uid))
+          query(collection(db, 'requests'))
         );
         setRequests(snap.docs.map(d => ({
           id: d.id, ...d.data(),

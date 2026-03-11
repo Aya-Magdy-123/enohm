@@ -498,13 +498,15 @@
     "all": "الكل",
     "contacted": "تم التواصل",
     "inProgress": "قيد التقدم",
-    "completed": "تم التنفيذ"
+    "completed": "تم التنفيذ",
+    "approved": "مقبول",
+    "pending": "قيد المراجعة"
   },
   "card": {
     "location": "الموقع",
     "area": "المساحة",
     "clientNotes": "ملاحظات العميل",
-    "myNotes": "ملاحظاتي",
+    "myNotes": "ملاحظات",
     "photos": "صور المشروع",
     "updateStatus": "تحديث الحالة"
   },
@@ -534,6 +536,39 @@
     "contacted": "تم التواصل",
     "inProgress": "قيد التنفيذ",
     "completed": "تم التنفيذ"
-  }
+  },
+
+  "required":"مطلوب",
+
+  "pendingRejectionTitle": "طلبات رفض بانتظار موافقتك",
+  "pendingRejectionDesc": "طلبات رفضها الموظف وتحتاج قرارك",
+  "review": "مراجعة",
+  "addNewRequest": "إضافة طلب جديد",
+  "reviewRejectionRequest": "مراجعة طلب الرفض",
+  "approveRequest": "الموافقة على الطلب",
+  "clientName": "اسم العميل",
+  "phoneNumber": "رقم الهاتف",
+  "location": "الموقع",
+  "area": "المساحة",
+  "cancel": "إلغاء",
+  "send": "إرسال",
+  "rejectRequest": "رفض الطلب",
+  "confirmRejectQuestion": "هل أنت متأكد من رفض هذا الطلب؟",
+  "rejectedStatus": "مرفوض",
+  "confirmReject": "تأكيد الرفض",
+  "reviewRejection": "مراجعة طلب الرفض",
+  "rejectionRequestedByEmployee": "طلب الرفض من",
+  "employeeAskedReject": "الموظف طلب رفض هذا الطلب. هل توافق على الرفض أم ترفضه؟",
+  "later": "لاحقاً",
+  "acceptRequest": "قبول الطلب",
+  "approveFinalRejection": "الموافقة على الرفض النهائي",
+  "addRequest": "إضافة طلب جديد",
+
+   "lastUpdateAdminApproved": "الأدمن وافق على الرفض — سيتم رفض الطلب .",
+   "end":"نهائياً",
+  "lastUpdatePendingAdmin": "سيتم إرسال طلب رفض إلى الأدمن للمراجعة. الطلب لن يُرفض نهائياً حتى يوافق الأدمن.",
+   "finalRejectConfirm": "تأكيد الرفض النهائي",
+  "sendRejectRequest": "إرسال طلب الرفض"
+
 
 }

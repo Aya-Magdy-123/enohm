@@ -502,7 +502,7 @@
     "location": "Standort",
     "area": "Fläche",
     "clientNotes": "Kundennotizen",
-    "myNotes": "Meine Notizen",
+    "myNotes": " Notizen",
     "photos": "Projektfotos",
     "updateStatus": "Status aktualisieren"
   },
@@ -532,7 +532,41 @@
     "contacted": "Kontaktiert",
     "inProgress": "In Bearbeitung",
     "completed": "Abgeschlossen"
-  }
+  },
+
+  "required":"Erforderlich",
+
+   "pendingRejectionTitle": "Abgelehnte Anfragen warten auf Ihre Genehmigung",
+  "pendingRejectionDesc": "Anfragen wurden vom Mitarbeiter abgelehnt und benötigen Ihre Entscheidung",
+  "review": "Überprüfen",
+  "addNewRequest": "Neue Anfrage hinzufügen",
+  "reviewRejectionRequest": "Ablehnungsanfrage überprüfen",
+  "approveRequest": "Anfrage genehmigen",
+  "clientName": "Kundenname",
+  "phoneNumber": "Telefonnummer",
+  "location": "Standort",
+  "area": "Fläche",
+  "cancel": "Abbrechen",
+  "send": "Senden",
+  "rejectRequest": "Anfrage ablehnen",
+  "confirmRejectQuestion": "Sind Sie sicher, dass Sie diese Anfrage ablehnen möchten?",
+  "rejectedStatus": "Abgelehnt",
+  "confirmReject": "Ablehnung bestätigen",
+  "reviewRejection": "Ablehnungsanfrage überprüfen",
+  "rejectionRequestedByEmployee": "Ablehnung angefordert von",
+  "employeeAskedReject": "Der Mitarbeiter hat die Ablehnung dieser Anfrage beantragt. Stimmen Sie der Ablehnung zu oder lehnen Sie sie ab und senden ?",
+  "later": "Später",
+  "acceptRequest": "Anfrage akzeptieren",
+  "approveFinalRejection": "Endgültige Ablehnung bestätigen",
+  "addRequest": "Neue Anfrage hinzufügen",
+
+  "lastUpdateAdminApproved": "Admin hat die Ablehnung genehmigt — die Anfrage wird endgültig .",
+  "end":"abgelehnt",
+  "lastUpdatePendingAdmin": "Die Ablehnungsanfrage wird zur Überprüfung an den Admin gesendet. Die Anfrage wird erst endgültig abgelehnt, wenn der Admin zustimmt.",
+
+   "finalRejectConfirm": "Endgültige Ablehnung bestätigen",
+  "sendRejectRequest": "Ablehnungsanfrage senden"
+
 
 
 }
