@@ -565,7 +565,17 @@
   "lastUpdatePendingAdmin": "The rejection request will be sent to the admin for review. The request will not be permanently rejected until the admin approves.",
 
    "finalRejectConfirm": "Confirm final rejection",
-  "sendRejectRequest": "Send rejection request"
+  "sendRejectRequest": "Send rejection request",
+
+   "email": "Email",
+  "password": "Password",
+  "loggingIn": "Logging in...",
+  "login": "Login",
+  "loginToDashboard": "Log in to access the dashboard",
+  "errorTryAgain": "An error occurred, please try again",
+  "invalidCredentials": "Email or password is incorrect",
+  "noPermission": "You do not have permission to access",
+  "loginSuccess": "Logged in successfully!"
 
 
 }

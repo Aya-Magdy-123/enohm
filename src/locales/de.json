@@ -565,7 +565,17 @@
   "lastUpdatePendingAdmin": "Die Ablehnungsanfrage wird zur Überprüfung an den Admin gesendet. Die Anfrage wird erst endgültig abgelehnt, wenn der Admin zustimmt.",
 
    "finalRejectConfirm": "Endgültige Ablehnung bestätigen",
-  "sendRejectRequest": "Ablehnungsanfrage senden"
+  "sendRejectRequest": "Ablehnungsanfrage senden",
+
+  "email": "E-Mail",
+  "password": "Passwort",
+  "loggingIn": "Anmeldung läuft...",
+  "login": "Anmelden",
+  "loginToDashboard": "Melden Sie sich an, um auf das Dashboard zuzugreifen",
+  "errorTryAgain": "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut",
+  "invalidCredentials": "E-Mail oder Passwort ist falsch",
+  "noPermission": "Sie haben keine Berechtigung für den Zugriff",
+  "loginSuccess": "Erfolgreich angemeldet!"
 
 
 
