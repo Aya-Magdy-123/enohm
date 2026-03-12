@@ -209,7 +209,8 @@ function AdminSettings() {
       onClick={()=>setShowAddAdmin(!showAddAdmin)}
       className="bg-blue-950 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-900"
       >
-     <Plus className='w-4 h-4 inline-block'/> {t("admins.addAdmin")}
+     <Plus className='w-4 h-4 inline-block'/>
+     <span className='hidden md:inline-block'> {t("admins.addAdmin")}</span>
       </button>
 
       </div>

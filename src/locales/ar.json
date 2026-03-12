@@ -560,7 +560,7 @@
   "rejectionRequestedByEmployee": "طلب الرفض من",
   "employeeAskedReject": "الموظف طلب رفض هذا الطلب. هل توافق على الرفض أم ترفضه؟",
   "later": "لاحقاً",
-  "acceptRequest": "قبول الطلب",
+  "acceptRequest": " قبول طلب العميل",
   "approveFinalRejection": "الموافقة على الرفض النهائي",
   "addRequest": "إضافة طلب جديد",
 
@@ -578,7 +578,27 @@
   "errorTryAgain": "حدث خطأ، يرجى المحاولة مرة أخرى",
   "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
   "noPermission": "ليس لديك صلاحية للوصول",
-  "loginSuccess": "تم تسجيل الدخول بنجاح!"
+  "loginSuccess": "تم تسجيل الدخول بنجاح!",
+
+  "addPermission": "إضافة إذن",
+  "selectEmployee": "اختيار الموظف",
+  "choose": "اختر",
+  "requestsExcept": "الطلبات التي يمكن لهذا الموظف رؤيتها ما عدا:",
+  "serviceType": "نوع الخدمة",
+  "qualityLevel": "مستوى الجودة",
+  "sending": "جاري الإرسال...",
+
+
+   "notificationNewRequest": "تم إرسال طلب جديد بتاريخ {{date}}",
+  "notificationApprovedRequest": "تم تعيينك لإنجاز طلب من نوع {{serviceType}} بتاريخ {{date}}",
+  "notificationUpdatedRequest": "تم تعديل حالة طلب {{client}} من قبل الموظف {{employee}} إلى {{status}} بتاريخ {{date}}",
+  "notificationRejectedRequest": "تم رفض طلب العميل {{client}} من قبل الموظف {{employee}} بتاريخ {{date}}",
+
+   "markAllAsRead": "تعليم الكل كمقروء",
+  "notifications": "الإشعارات",
+  "logout": "تسجيل الخروج",
+  "lastUpdateBy":"آخر تحديث بواسطه"
+
 
 
 }

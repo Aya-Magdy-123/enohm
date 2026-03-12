@@ -556,7 +556,7 @@
   "rejectionRequestedByEmployee": "Rejection requested by",
   "employeeAskedReject": "The employee requested to reject this request. Do you approve the rejection or decline it ?",
   "later": "Later",
-  "acceptRequest": "Accept request",
+  "acceptRequest": "Accept Client request",
   "approveFinalRejection": "Approve final rejection",
   "addRequest": "Add new request",
 
@@ -575,7 +575,26 @@
   "errorTryAgain": "An error occurred, please try again",
   "invalidCredentials": "Email or password is incorrect",
   "noPermission": "You do not have permission to access",
-  "loginSuccess": "Logged in successfully!"
+  "loginSuccess": "Logged in successfully!",
+
+   "addPermission": "Add Permission",
+  "selectEmployee": "Select Employee",
+  "choose": "Choose",
+  "requestsExcept": "Requests this employee can see except:",
+  "serviceType": "Service Type",
+  "qualityLevel": "Quality Level",
+  "sending": "Sending...",
+
+  "notificationNewRequest": "A new request was submitted on {{date}}",
+  "notificationApprovedRequest": "You have been assigned to complete a {{serviceType}} request on {{date}}",
+  "notificationUpdatedRequest": "Request for {{client}} was updated by employee {{employee}} to {{status}} on {{date}}",
+  "notificationRejectedRequest": "Request from client {{client}} was rejected by employee {{employee}} on {{date}}",
+
+  "markAllAsRead": "Mark all as read",
+  "notifications": "Notifications",
+  "logout": "Log out",
+  "lastUpdateBy":"Last updated by:"
+
 
 
 }

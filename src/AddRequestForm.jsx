@@ -76,7 +76,7 @@ function AddRequestForm({setShowSuccessModal}){
         type: "newRequest",
         submittedAt: serverTimestamp(),
         serviceType: values.serviceType,
-        isRead: false
+        read: false
       });
 
       resetForm();

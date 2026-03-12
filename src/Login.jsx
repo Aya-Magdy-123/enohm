@@ -67,7 +67,6 @@ const handleSubmit = async (e) => {
             className="w-48 h-auto mx-auto mb-4 filter brightness-0 invert"
             alt="Enohm Logo"
           />
-          {/* <h2 className="text-2xl font-bold text-white mb-2">لوحة التحكم</h2> */}
           <p className="text-gray-300 text-sm"> {t("loginToDashboard")}</p>
         </div>
 

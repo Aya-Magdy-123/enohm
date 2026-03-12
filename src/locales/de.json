@@ -556,7 +556,7 @@
   "rejectionRequestedByEmployee": "Ablehnung angefordert von",
   "employeeAskedReject": "Der Mitarbeiter hat die Ablehnung dieser Anfrage beantragt. Stimmen Sie der Ablehnung zu oder lehnen Sie sie ab und senden ?",
   "later": "Später",
-  "acceptRequest": "Anfrage akzeptieren",
+  "acceptRequest": "Kundenanfrage annehmen",
   "approveFinalRejection": "Endgültige Ablehnung bestätigen",
   "addRequest": "Neue Anfrage hinzufügen",
 
@@ -575,7 +575,27 @@
   "errorTryAgain": "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut",
   "invalidCredentials": "E-Mail oder Passwort ist falsch",
   "noPermission": "Sie haben keine Berechtigung für den Zugriff",
-  "loginSuccess": "Erfolgreich angemeldet!"
+  "loginSuccess": "Erfolgreich angemeldet!",
+
+
+   "addPermission": "Berechtigung hinzufügen",
+  "selectEmployee": "Mitarbeiter auswählen",
+  "choose": "Auswählen",
+  "requestsExcept": "Anfragen, die dieser Mitarbeiter sehen kann außer:",
+  "serviceType": "Servicetyp",
+  "qualityLevel": "Qualitätsstufe",
+  "sending": "Wird gesendet...",
+
+  "notificationNewRequest": "Eine neue Anfrage wurde am {{date}} gesendet",
+  "notificationApprovedRequest": "Sie wurden beauftragt, eine Anfrage vom Typ {{serviceType}} am {{date}} zu bearbeiten",
+  "notificationUpdatedRequest": "Die Anfrage von {{client}} wurde vom Mitarbeiter {{employee}} auf {{status}} am {{date}} aktualisiert",
+  "notificationRejectedRequest": "Die Anfrage des Kunden {{client}} wurde vom Mitarbeiter {{employee}} am {{date}} abgelehnt",
+
+  "markAllAsRead": "Alle als gelesen markieren",
+  "notifications": "Benachrichtigungen",
+  "logout": "Abmelden",
+  "lastUpdateBy":"Zuletzt aktualisiert von:"
+
 
 
 

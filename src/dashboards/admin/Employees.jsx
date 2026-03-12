@@ -189,7 +189,7 @@ function Employees() {
 
       {/* ── Search + Add ── */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-        <div className="flex gap-3">
+        <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -206,7 +206,7 @@ function Employees() {
           </button>
           <button
             onClick={() => { setForm(emptyForm); setOpenAddModal(true); }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#f2a057] hover:bg-[#e08f42] text-white rounded-xl text-sm font-bold transition shadow-sm shadow-[#f2a057]/30">
+            className="flex items-center gap-2 justify-center px-5 py-2.5 bg-[#f2a057] hover:bg-[#e08f42] text-white rounded-xl text-sm font-bold transition shadow-sm shadow-[#f2a057]/30">
             <Plus className="w-4 h-4" />
             {t("employees.buttons.addEmployee")}
           </button>
@@ -218,7 +218,7 @@ function Employees() {
         <div className="flex gap-1">
           {tabs.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${activeTab === tab.key ? 'bg-[#f2a057] text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
+              className={`flex-1 px-2 md:p-4 py-2.5 rounded-xl text-sm font-semibold transition ${activeTab === tab.key ? 'bg-[#f2a057] text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
               {tab.label}
               <span className={`mx-1.5 px-1.5 py-0.5 rounded-md text-xs ${activeTab === tab.key ? 'bg-white/20' : 'bg-gray-100'}`}>
                 {tab.count}

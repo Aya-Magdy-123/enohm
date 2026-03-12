@@ -5,7 +5,7 @@ import {
   RefreshCw, ClipboardEdit, MessageSquare, CheckCircle2, XCircle, User
 } from 'lucide-react';
 import { db, auth } from '../../firebase';
-import { collection, getDocs, doc, updateDoc, orderBy, query, serverTimestamp, addDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, orderBy, query, serverTimestamp, addDoc, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import Modal from '../../components/Modal';
 import { useTranslation } from 'react-i18next';
@@ -136,7 +136,8 @@ function EmployeeRequests() {
       const snap = await getDocs(
         query(collection(db, 'requests'), orderBy('createdAt', 'desc'))
       );
-      setRequests(snap.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().createdAt || null })));
+      const filterd= snap.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().createdAt || null })).filter(req => !req.exceptEmployees?.includes(currentUser.uid))
+      setRequests(filterd);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
@@ -157,10 +158,26 @@ function EmployeeRequests() {
   const handleUpdate = async () => {
     if (!newStatus || !selectedRequest) return;
     setSubmitting(true);
+
     try {
+      let updateData;
       const opt = getStatusOpt(newStatus);
       const notesKey = opt?.notesKey;
-      const updateData = {
+
+      if(newStatus==="completed"){
+        updateData = {
+        status:  "pendingForCompleted",
+        approvedForCompleting: false,
+        updatedAt: new Date(),
+        lastUpdatedById:     currentUser.uid,
+        lastUpdatedByName:   employeeName,
+        ...(notesKey && notes.trim() ? {
+          [notesKey]:              notes.trim(),
+          [`${notesKey}ByName`]:   employeeName,
+        } : {}),
+      };
+      }else{     
+       updateData = {
         status:              newStatus,
         updatedAt:           new Date(),
         lastUpdatedById:     currentUser.uid,
@@ -170,6 +187,7 @@ function EmployeeRequests() {
           [`${notesKey}ByName`]:   employeeName,
         } : {}),
       };
+    }
       await updateDoc(doc(db, 'requests', selectedRequest.id), updateData);
       setRequests(prev => prev.map(r => r.id === selectedRequest.id ? { ...r, ...updateData } : r));
       setOpenUpdateModal(false);
@@ -305,7 +323,7 @@ function EmployeeRequests() {
     <div className="space-y-6" dir={i18n.language==="ar"? "rtl":"ltr"}>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
           <div key={i} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between gap-3">
             <div>
@@ -321,21 +339,23 @@ function EmployeeRequests() {
 
       {/* Search & Filter */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
-        <div className="flex gap-3">
+        <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input type="text" placeholder={t('employeeRequests.search')}
               value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
               className="w-full pr-9 pl-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#f2a057]/30 focus:border-[#f2a057] outline-none" />
           </div>
+          <div className='flex items-center *:flex-1 gap-3 '>
           <button onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${showFilters || serviceFilter || statusFilter ? 'bg-[#f2a057] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${showFilters || serviceFilter || statusFilter ? 'bg-[#f2a057] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
             <Filter className="w-4 h-4" /> {t('employeeRequests.filters')}
           </button>
           <button onClick={fetchData}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-semibold text-gray-600 transition">
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-semibold text-gray-600 transition">
             <RefreshCw className="w-4 h-4" /> {t('employeeRequests.refresh')}
           </button>
+          </div>
         </div>
 
         {showFilters && (
@@ -451,7 +471,7 @@ function EmployeeRequests() {
                   {/* آخر موظف عدّل */}
                   {request.lastUpdatedByName && !isPending && (
                     <p className="text-xs text-gray-400 flex items-center gap-1">
-                      <User className="w-3 h-3" /> آخر تحديث بواسطة: <span className="font-semibold text-gray-600">{request.lastUpdatedByName}</span>
+                      <User className="w-3 h-3" /> {t("lastUpdateBy")}: <span className="font-semibold text-gray-600">{request.lastUpdatedByName}</span>
                     </p>
                   )}
 
@@ -478,14 +498,16 @@ function EmployeeRequests() {
                   {/* زراير pending */}
                   {isPending && (
                     <>
+                    <button onClick={() => { setApprovingRequest(request); setOpenApprovalModal(true); }}
+                        className="flex items-center gap-1.5 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold transition shadow-sm">
+                        <CheckCircle2 className="w-4 h-4" /> 
+                      </button>
+
                       <button onClick={() => { setRejectingRequest(request); setOpenRejectModal(true); }}
                         className="flex items-center gap-1.5 px-4 py-2.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 rounded-xl text-sm font-bold transition">
                         <XCircle className="w-4 h-4" /> 
                       </button>
-                      <button onClick={() => { setApprovingRequest(request); setOpenApprovalModal(true); }}
-                        className="flex items-center gap-1.5 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold transition shadow-sm">
-                        <CheckCircle2 className="w-4 h-4" /> 
-                      </button>
+                      
                     </>
                   )}
 

@@ -6,8 +6,10 @@ import { auth, db } from '../firebase';
 import { collection, getDocs, doc, updateDoc, query, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import logo from "/logo.webp"
+import { useTranslation } from 'react-i18next';
 
 function DashboardLayout() {
+  const{t}= useTranslation();
   const navigate = useNavigate();
   const notifRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,21 +35,20 @@ function DashboardLayout() {
       if(!user) return;
       let q;
       if(role=== 'admin'){
-        q= query(collection(db, "notifications"), where("type", "in",["updatedRequest", "newRequest"]))
+        q= query(collection(db, "notifications"), where("type", "in",["updatedRequest", "newRequest", "rejectionRequest"]))
       }
       if(role === "employee"){
-        q= query(collection(db, "notifications"), where("type", "==","approvedRequest") , where("employeeId","==",user.uid));
+        q= query(collection(db, "notifications"), where("type", "in",["updatedRequest", "newRequest", "approvedRequest"]));
 
       }
       const res = await getDocs(q);
-      const snapshot = res.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      // let notifs = snapshot.filter((notify)=> role==='employee' && notify.type === "approvedRequest" ? notify.employeeId === user?.uid : role==='admin'? notify.type==="updatedRequest" || notify.type==="newRequest" : null);
-      setNotifications(snapshot);
-      // console.log("user", user.uid , "notifs", notifs);
+       const filterd= res.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
+      setNotifications(filterd);
       
     };
     getNotifications();
-  }, [user]);
+  }, [user, role]);
 
   /* ── close on outside click ── */
   useEffect(() => {
@@ -99,7 +100,7 @@ function DashboardLayout() {
       {/* Sidebar للموبايل */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 bg-opacity-50 z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         ></div>
       )}
@@ -151,7 +152,7 @@ function DashboardLayout() {
             className="flex items-center gap-3 w-full px-4 py-3 text-gray-300 hover:bg-red-600 hover:text-white rounded-lg transition"
           >
             <LogOut className="w-5 h-5" />
-            <span className="font-semibold">تسجيل الخروج</span>
+            <span className="font-semibold"> {t("logout")} </span>
           </button>
         </div>
       </aside>
@@ -167,14 +168,11 @@ function DashboardLayout() {
             {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
-          <h1 className="text-2xl font-bold text-blue-950">لوحة التحكم</h1>
+          {/* <h1 className="text-2xl font-bold text-blue-950">لوحة التحكم</h1> */}
 
-          <div className="flex items-center gap-1">
+          <div className="flex justify-end w-full items-center gap-1">
             <LanguageSwitcher />
-            <div className="text-end">
-              {/* <p className="text-sm font-semibold text-gray-700">مرحباً</p> */}
-              {/* <p className="text-xs text-gray-500">{user?.email}</p> */}
-            </div>
+            
 
             {/* ── Bell ── */}
             <div className="relative w-12" ref={notifRef}>
@@ -192,7 +190,7 @@ function DashboardLayout() {
                   <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Bell className="w-4 h-4 text-[#f2a057]" />
-                      <span className="font-bold text-blue-950 text-sm">الإشعارات</span>
+                      <span className="font-bold text-blue-950 text-sm">{t("notifications")}</span>
                       {unreadCount > 0 && (
                         <span className="bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                           {unreadCount}
@@ -203,7 +201,7 @@ function DashboardLayout() {
                       <button onClick={markAllRead}
                         className="flex items-center gap-1 text-xs text-[#f2a057] hover:text-orange-500 font-semibold transition">
                         <CheckCheck className="w-3.5 h-3.5" />
-                        تعليم الكل كمقروء
+                       {t("markAllAsRead")}
                       </button>
                     )}
                   </div>
@@ -217,30 +215,51 @@ function DashboardLayout() {
                       </div>
                     ) : (
                       notifications.map((notification) => {
-                        let text = '';
-                        let dot = 'bg-gray-400';
-                        let Role;
+                        let text = "";
+                    let dot = "";
+                    let Role = "";
 
-                        if (notification.type === 'newRequest' ) {
-                          text = `تم إرسال طلب جديد بتاريخ ${notification.submittedAt?.toDate().toLocaleDateString()}`;
-                          dot = 'bg-blue-500';
-                          Role="admin";
-                        }
-                        if (notification.type === 'approvedRequest' ) {
-                          text = `تم تعيينك لإنجاز طلب من نوع ${notification.serviceType} ${notification.submittedAt?.toDate().toLocaleDateString()}`;
-                          dot = 'bg-teal-500';
-                          Role="employee";
+                    const date = notification.submittedAt?.toDate().toLocaleDateString();
 
-                        }
-                        if (notification.type === 'updatedRequest' ) {
-                          text = `تم تعديل حالة طلب ${notification.client} من قبل الموظف ${notification.employeeName} إلى ${notification.status} بتاريخ ${notification.submittedAt?.toDate().toLocaleDateString()}`;
-                          dot = 'bg-amber-500';
-                          Role="admin";
+                    if (notification.type === "newRequest") {
+                      text = t("notificationNewRequest", {
+                        date: date
+                      });
+                      dot = "bg-blue-500";
+                      Role = ["admin" , "employee"];
+                    }
 
-                        }
+                    if (notification.type === "approvedRequest") {
+                      text = t("notificationApprovedRequest", {
+                        serviceType: notification.serviceType,
+                        date: date
+                      });
+                      dot = "bg-teal-500";
+                      Role = ["employee"] ;
+                    }
 
-                        if (role !== Role) return null;
+                    if (notification.type === "updatedRequest") {
+                      text = t("notificationUpdatedRequest", {
+                        client: notification.client,
+                        employee: notification.employeeName,
+                        status: notification.status,
+                        date: date
+                      });
+                      dot = "bg-amber-500";
+                      Role = ["admin", "employee"];
+                    }
 
+                    if (notification.type === "rejectionRequest") {
+                      text = t("notificationRejectedRequest", {
+                        client: notification.client,
+                        employee: notification.employeeName,
+                        date: date
+                      });
+                      dot = "bg-red-500";
+                      Role = ["admin"];
+                    }
+
+                      if (!Role.includes(role)) return null;
                         return (                         
                           <div key={notification.id}
                             className={`flex items-start gap-3 px-4 py-3.5 border-b border-gray-50 transition-colors
