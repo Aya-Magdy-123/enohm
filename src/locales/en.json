@@ -593,7 +593,11 @@
   "markAllAsRead": "Mark all as read",
   "notifications": "Notifications",
   "logout": "Log out",
-  "lastUpdateBy":"Last updated by:"
+  "lastUpdateBy":"Last updated by:",
+  "Requests": "Requests",
+    "Employees": "Employees",
+    "Settings": "Settings"
+
 
 
 

@@ -594,7 +594,11 @@
   "markAllAsRead": "Alle als gelesen markieren",
   "notifications": "Benachrichtigungen",
   "logout": "Abmelden",
-  "lastUpdateBy":"Zuletzt aktualisiert von:"
+  "lastUpdateBy":"Zuletzt aktualisiert von:",
+
+   "Requests": "Anfragen",
+    "Employees": "Mitarbeiter",
+    "Settings": "Einstellungen"
 
 
 

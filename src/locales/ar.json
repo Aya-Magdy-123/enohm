@@ -317,14 +317,7 @@
 
 
   "employees": {
-    "roles": {
-      "siteEngineer": "مهندس موقع",
-      "supervisor": "مشرف",
-      "technician": "فني",
-      "accountant": "محاسب",
-      "projectManager": "مدير مشروع",
-      "workers": "عمال"
-    },
+    
     "departments": {
       "construction": "الإنشاءات",
       "finishing": "الإكساء",
@@ -597,7 +590,11 @@
    "markAllAsRead": "تعليم الكل كمقروء",
   "notifications": "الإشعارات",
   "logout": "تسجيل الخروج",
-  "lastUpdateBy":"آخر تحديث بواسطه"
+  "lastUpdateBy":"آخر تحديث بواسطه",
+    "Requests": "الطلبات",
+    "Employees": "الموظفين",
+    "Settings": "الإعدادات"
+  
 
 
 

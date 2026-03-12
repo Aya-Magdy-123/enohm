@@ -9,7 +9,7 @@ import logo from "/logo.webp"
 import { useTranslation } from 'react-i18next';
 
 function DashboardLayout() {
-  const{t}= useTranslation();
+  const{t,i18n}= useTranslation();
   const navigate = useNavigate();
   const notifRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -81,22 +81,22 @@ function DashboardLayout() {
   };
 
   const adminItems = [
-    { name: 'الرئيسية', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'الطلبات', path: '/dashboard/requests', icon: FileText },
-    { name: 'الموظفين', path: '/dashboard/employees', icon: Users },
-    { name: 'الاعدادات', path: '/dashboard/adminSettings', icon: Settings },
+    { name: t("nav.home"), path: '/dashboard', icon: LayoutDashboard },
+    { name: t("Requests"), path: '/dashboard/requests', icon: FileText },
+    { name: t("Employees"), path: '/dashboard/employees', icon: Users },
+    { name: t("Settings"), path: '/dashboard/adminSettings', icon: Settings },
   ];
 
   const employeeItems = [
-    { name: 'الرئيسية', path: '/dashboard/home', icon: LayoutDashboard },
-    { name: 'الطلبات', path: '/dashboard/employeeRequests', icon: FileText },
-    { name: 'الاعدادات', path: '/dashboard/employeeSettings', icon: Settings },
+    { name: t("nav.home"), path: '/dashboard/home', icon: LayoutDashboard },
+    { name: t("Requests"), path: '/dashboard/employeeRequests', icon: FileText },
+    { name: t("Settings"), path: '/dashboard/employeeSettings', icon: Settings },
   ];
 
   const menuItems = role === 'admin' ? adminItems : employeeItems;
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-gray-50" dir={i18n.language==="ar"?"rtl":"ltr"}>
       {/* Sidebar للموبايل */}
       {sidebarOpen && (
         <div
@@ -107,7 +107,7 @@ function DashboardLayout() {
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 right-0 h-full w-64 bg-blue-950 text-white z-50 transform transition-transform duration-300 ease-in-out
+        fixed top-0 ${i18n.language==="ar"?"right-0":"left-0"} h-full w-64 bg-blue-950 text-white z-50 transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
         md:translate-x-0
       `}>
@@ -158,7 +158,7 @@ function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <div className="md:mr-64">
+      <div className={`${i18n.language==="ar"?"md:mr-64":"md:ml-64"} `}>
         {/* Top Bar */}
         <header className="bg-white shadow-md p-4 flex items-center justify-between">
           <button
@@ -184,7 +184,7 @@ function DashboardLayout() {
               )}
 
               {show &&
-                <div className="absolute mt-2 z-40 left-0 bg-white w-[300px] rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+                <div className={`absolute mt-2 z-40 ${i18n.language==="ar"?"left-0":"right-0"} bg-white w-[300px] rounded-2xl shadow-2xl border border-gray-100 overflow-hidden`}>
 
                   {/* header */}
                   <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
