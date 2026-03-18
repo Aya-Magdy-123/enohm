@@ -531,7 +531,11 @@
     "rejected": "Abgelehnt",
     "contacted": "Kontaktiert",
     "inProgress": "In Bearbeitung",
-    "completed": "Abgeschlossen"
+    "completed": "Abgeschlossen",
+    "pendingForReject":"Ausstehende Ablehnungsanfrage  ",
+    "pendingForCompleted":" Ausstehende Beendigung4 "
+
+
   },
 
   "required":"Erforderlich",
@@ -581,7 +585,7 @@
    "addPermission": "Berechtigung hinzufügen",
   "selectEmployee": "Mitarbeiter auswählen",
   "choose": "Auswählen",
-  "requestsExcept": "Anfragen, die dieser Mitarbeiter sehen kann außer:",
+  "requestsExcept": "Anfragen, die dieser Mitarbeiter sehen kann :",
   "serviceType": "Servicetyp",
   "qualityLevel": "Qualitätsstufe",
   "sending": "Wird gesendet...",
@@ -598,7 +602,17 @@
 
    "Requests": "Anfragen",
     "Employees": "Mitarbeiter",
-    "Settings": "Einstellungen"
+    "Settings": "Einstellungen",
+    "reject":"ablehnen",
+    "finish": "Beenden",
+    "reviewRequest":"  Beendigungsanfrage prüfen ",
+
+    "notificationApproveCompletionRequest": "Der Abschlussantrag für den Kunden {{client}} wurde am {{date}} genehmigt",
+"notificationRejectCompletionRequest": "Der Abschlussantrag für den Kunden {{client}} wurde am {{date}} abgelehnt",
+"notificationApproveRejectionRequest": "Der Ablehnungsantrag für den Kunden {{client}} wurde am {{date}} genehmigt",
+"notificationRejectRejectionRequest": "Der Ablehnungsantrag für den Kunden {{client}} wurde am {{date}} abgelehnt"
+
+
 
 
 

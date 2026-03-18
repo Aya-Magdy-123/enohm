@@ -53,7 +53,7 @@ function Home() {
         const snap = await getDocs(
           query(collection(db, 'requests'))
         );
-       const filterd= snap.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().createdAt?.toDate() || null })).filter(req => !req.exceptEmployees?.includes(currentUser.uid))
+       const filterd= snap.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().createdAt?.toDate() || null })).filter(req =>  req.permissionedEmployees?.includes(currentUser.uid))
 
         setRequests(filterd);
       } catch (err) { console.error(err); }

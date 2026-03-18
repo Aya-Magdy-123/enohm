@@ -531,7 +531,11 @@
     "rejected": "Rejected",
     "contacted": "Contacted",
     "inProgress": "In Progress",
-    "completed": "Completed"
+    "completed": "Completed",
+    "pendingForReject":"Pending Rejection Request ",
+    "pendingForCompleted":"Pending Termination"
+
+
   },
 
   "required":"required",
@@ -580,7 +584,7 @@
    "addPermission": "Add Permission",
   "selectEmployee": "Select Employee",
   "choose": "Choose",
-  "requestsExcept": "Requests this employee can see except:",
+  "requestsExcept": "Requests this employee can see :",
   "serviceType": "Service Type",
   "qualityLevel": "Quality Level",
   "sending": "Sending...",
@@ -596,7 +600,18 @@
   "lastUpdateBy":"Last updated by:",
   "Requests": "Requests",
     "Employees": "Employees",
-    "Settings": "Settings"
+    "Settings": "Settings",
+    "reject": "reject",
+    "finish": "finish",
+    "reviewRequest":"Review Termination Request",
+
+    "notificationApproveCompletionRequest": "The service completion request for client {{client}} has been approved on {{date}}",
+"notificationRejectCompletionRequest": "The service completion request for client {{client}} has been rejected on {{date}}",
+"notificationApproveRejectionRequest": "The service rejection request for client {{client}} has been approved on {{date}}",
+"notificationRejectRejectionRequest": "The service rejection request for client {{client}} has been rejected on {{date}}"
+
+
+
 
 
 

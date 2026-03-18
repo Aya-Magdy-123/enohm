@@ -148,7 +148,7 @@
     "statusPending": "قيد المراجعة",
     "approved": "موافق عليه",
     "rejected": "مرفوض",
-    "inProgress": "قيد التقدم",
+    "inProgress": "قيد التنفيذ",
     "called": "تم التواصل"
   },
 
@@ -528,7 +528,10 @@
     "rejected": "مرفوض",
     "contacted": "تم التواصل",
     "inProgress": "قيد التنفيذ",
-    "completed": "تم التنفيذ"
+    "completed": "تم التنفيذ",
+    "pendingForReject":"طلب رفض معلق",
+    "pendingForCompleted":"إنهاء معلق"
+
   },
 
   "required":"مطلوب",
@@ -576,7 +579,7 @@
   "addPermission": "إضافة إذن",
   "selectEmployee": "اختيار الموظف",
   "choose": "اختر",
-  "requestsExcept": "الطلبات التي يمكن لهذا الموظف رؤيتها ما عدا:",
+  "requestsExcept": "الطلبات التي يمكن لهذا الموظف رؤيتها  :",
   "serviceType": "نوع الخدمة",
   "qualityLevel": "مستوى الجودة",
   "sending": "جاري الإرسال...",
@@ -593,8 +596,15 @@
   "lastUpdateBy":"آخر تحديث بواسطه",
     "Requests": "الطلبات",
     "Employees": "الموظفين",
-    "Settings": "الإعدادات"
-  
+    "Settings": "الإعدادات",
+    "reject": "رفض",
+    "finish": "إنهاء",
+    "reviewRequest":"  مراجعة طلب إنهاء",
+
+  "notificationApproveCompletionRequest": "تم قبول طلب إتمام الخدمة للعميل {{client}} بتاريخ {{date}}",
+"notificationRejectCompletionRequest": "تم رفض طلب إتمام الخدمة للعميل {{client}} بتاريخ {{date}}",
+"notificationApproveRejectionRequest": "تم قبول طلب رفض الخدمة للعميل {{client}} بتاريخ {{date}}",
+"notificationRejectRejectionRequest": "تم رفض طلب رفض الخدمة للعميل {{client}} بتاريخ {{date}}"
 
 
 

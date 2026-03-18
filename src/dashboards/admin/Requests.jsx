@@ -1,27 +1,98 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   FileText, FileCheck, Clock, Search, Filter, MapPin, Home, Phone,
-  Loader2, X, Download, ChevronLeft, ChevronRight, CheckCircle2, User, MessageSquare,
-  Circle, Plus, AlertTriangle
+  Loader2, X, Download, ChevronLeft, ChevronRight, CheckCircle2, User,
+  Circle, Plus, AlertTriangle, ClipboardEdit, CheckCircle
 } from 'lucide-react';
-import { db } from '../../firebase';
-import { collection, getDocs, doc, updateDoc, orderBy, query, serverTimestamp, addDoc, onSnapshot, where, arrayUnion } from 'firebase/firestore';
+import { auth, db } from '../../firebase';
+import {
+  collection, getCountFromServer, getDocs, doc,
+  orderBy, query, where, limit, startAfter,
+  getDoc,
+} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
-import Modal from '../../components/Modal';
-import AddRequestForm from '../../AddRequestForm';
+
+/* ── modals ── */
+import ApprovalModal        from '../../modals/ApprovalModal';
+import RejectModal          from '../../modals/RejectModal';
+import RejectionConfirmModal from '../../modals/RejectionConfirmModal';
+import CompletionConfirmModal from '../../modals/CompletionConfirmModal';
+import UpdateStatusModal    from '../../modals/UpdateStatusModal';
+import PermissionModal      from '../../modals/PermissionModal';
+import AddRequestModal      from '../../modals/AddRequestModal';
+
+/* ── shared component ── */
+import EmployeeNotes from '../../components/EmployeeNotes';
 
 /* ══════════════════════════════════════════
-   STATUS META
+   CONSTANTS
 ══════════════════════════════════════════ */
-const EMPLOYEE_STATUSES = ['contacted', 'inProgress', 'completed', 'paused'];
+
+function SuccessModal({ isOpen, onClose, isRTL }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal Card */}
+      <div
+        className="relative bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm flex flex-col items-center text-center gap-4 animate-[fadeInScale_0.3s_ease-out]"
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
+        {/* Icon */}
+        <div className="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center shadow-inner">
+          <CheckCircle className="w-11 h-11 text-[#f2a057]" strokeWidth={1.8} />
+        </div>
+
+        {/* Text */}
+        <div className="flex flex-col gap-1">
+          <h3 className="text-xl font-extrabold text-blue-950">
+            {isRTL ? 'تم إرسال طلبك بنجاح!' : 'Request Sent Successfully!'}
+          </h3>
+          <p className="text-gray-500 text-sm leading-relaxed">
+            {isRTL
+              ? 'شكراً لتواصلك معنا، سيقوم فريقنا بالتواصل معك في أقرب وقت ممكن.'
+              : 'Thank you for reaching out. Our team will contact you as soon as possible.'}
+          </p>
+        </div>
+
+        {/* Divider */}
+        <hr className="w-16 h-[3px] bg-yellow-500 border-none rounded-full" />
+
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="mt-1 px-8 py-2.5 bg-[#f2a057] hover:bg-orange-600 text-white font-bold rounded-lg shadow-md transition text-sm"
+        >
+          {isRTL ? 'حسناً' : 'OK'}
+        </button>
+      </div>
+
+      {/* Keyframe animation via style tag */}
+      <style>{`
+        @keyframes fadeInScale {
+          from { opacity: 0; transform: scale(0.85); }
+          to   { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+const PAGE_SIZE = 9;
 
 const serviceColors = {
-  'construction':         { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200',   dot: 'bg-blue-500' },
-  'finishing':        { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', dot: 'bg-purple-500' },
-  'renovation':        { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200',  dot: 'bg-amber-500' },
-  'homeReady': { bg: 'bg-teal-50',  text: 'text-teal-700',   border: 'border-teal-200',   dot: 'bg-teal-500' },
+  construction: { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200',   dot: 'bg-blue-500' },
+  finishing:    { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', dot: 'bg-purple-500' },
+  renovation:   { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200',  dot: 'bg-amber-500' },
+  homeReady:    { bg: 'bg-teal-50',   text: 'text-teal-700',   border: 'border-teal-200',   dot: 'bg-teal-500' },
 };
-
 const getServiceColor = (type) => {
   for (const key of Object.keys(serviceColors)) {
     if (type?.includes(key)) return serviceColors[key];
@@ -29,385 +100,308 @@ const getServiceColor = (type) => {
   return { bg: 'bg-gray-50', text: 'text-gray-700', border: 'border-gray-200', dot: 'bg-gray-400' };
 };
 
+/* pending → يظهر زراير approve/reject */
 const canAction = (status) =>
-  !['approved', 'rejected', 'contacted', 'inProgress', 'completed', 'paused'].includes(status);
+  !['approved', 'rejected', 'contacted', 'inProgress', 'completed', 'paused', 'pendingForReject', 'pendingForCompleted'].includes(status);
 
 /* ══════════════════════════════════════════
-   الصفحة الرئيسية
+   MAIN COMPONENT
 ══════════════════════════════════════════ */
 function Requests() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
+  /* ── auth ── */
+  const [currentUser, setCurrentUser] = useState(null);
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => { if (u) setCurrentUser(u); });
+    return unsub;
+  }, []);
+
+  /* ── data ── */
+  const [requests, setRequests]   = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading]     = useState(true);
+
+  /* ── pagination ── */
+  const [currentPage, setCurrentPage]       = useState(1);
+  const [totalCount, setTotalCount]         = useState(0);
+  const [cursors, setCursors]               = useState({}); // { pageNum: lastDocSnapshot }
   const [activeTab, setActiveTab]           = useState('all');
+
+  /* ── filters / search ── */
   const [searchQuery, setSearchQuery]       = useState('');
-  const [requests, setRequests]             = useState([]);
-  const [employees, setEmployees]           = useState([]);
-  const [loading, setLoading]               = useState(true);
   const [showFilters, setShowFilters]       = useState(false);
   const [serviceFilter, setServiceFilter]   = useState('');
   const [qualityFilter, setQualityFilter]   = useState('');
-  const [lightbox, setLightbox]             = useState({ open: false, photos: [], index: 0 });
-  const [openApprovalModal, setOpenApprovalModal] = useState(false);
-  const [openRejectModal, setOpenRejectModal]     = useState(false);
-  const [selectedRequest, setSelectedRequest]     = useState({});
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
-  const [submitting, setSubmitting]         = useState(false);
-  const [load, setLoad]         = useState(false);
-  const [openAddModal, setOpenAddModal]     = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const[openPermissionModal, setOpenPermissionModal]= useState(false);
-  const[approvedRequests, setApprovedRequests]= useState([]);
-  const[selectedRequests, setSelectedRequests]= useState([]);
-  const[sending, setSending]= useState(false);
 
-  /* ── rejection confirm modal (الأدمن يقرر) ── */
-  const [openRejectionConfirm, setOpenRejectionConfirm] = useState(false);
-  const [rejectionRequest, setRejectionRequest]         = useState(null);
+  /* ── lightbox ── */
+  const [lightbox, setLightbox] = useState({ open: false, photos: [], index: 0 });
 
-    const [openCompletionConfirm, setOpenCompletionConfirm] = useState(false);
-  const [completionRequest, setCompletionRequest]         = useState(null);
+  /* ── modal visibility ── */
+  const [openApprovalModal, setOpenApprovalModal]         = useState(false);
+  const [openRejectModal, setOpenRejectModal]             = useState(false);
+  const [openRejectionConfirm, setOpenRejectionConfirm]   = useState(false);
+  const [openCompletionConfirm, setOpenCompletionConfirm] = useState(false);
+  const [openUpdateModal, setOpenUpdateModal]             = useState(false);
+  const [openPermissionModal, setOpenPermissionModal]     = useState(false);
+  const [openAddModal, setOpenAddModal]                   = useState(false);
+  const [showSuccessModal, setShowSuccessModal]           = useState(false);
 
-  /* ══ STATUS_META بيتبنى هنا عشان يستخدم t() ══ */
+  /* ── selected request (shared across modals) ── */
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
+  /* ── banner counts (server) ── */
+  const [pendingRejectionCount, setPendingRejectionCount]   = useState(0);
+  const [pendingCompletionCount, setPendingCompletionCount] = useState(0);
+
+  /* ── tab counts ── */
+  const [tabCounts, setTabCounts] = useState({
+    all: 0, pending: 0, approved: 0,
+    contacted: 0, inProgress: 0, completed: 0, rejected: 0,
+  });
+
+  /* ══════════════════════════════════════════
+     STATUS META (depends on t())
+  ══════════════════════════════════════════ */
   const STATUS_META = {
-    pending:    { label: t('status.pending'),    badge: 'bg-orange-100 text-orange-600', notesKey: null },
-    approved:   { label: t('status.approved'),   badge: 'bg-teal-100 text-teal-700',    notesKey: null },
-    rejected:   { label: t('status.rejected'),   badge: 'bg-red-100 text-red-600',      notesKey: null },
-    contacted:  { label: t('status.contacted'),  badge: 'bg-blue-100 text-blue-700',    notesKey: 'notesForContacted' },
-    inProgress: { label: t('status.inProgress'), badge: 'bg-amber-100 text-amber-700',  notesKey: 'notesForInProgress' },
-    completed:  { label: t('status.completed'),  badge: 'bg-green-100 text-green-700',  notesKey: 'notesForCompleted' },
+    pending:            { label: t('status.pending'),    badge: 'bg-orange-100 text-orange-600' },
+    approved:           { label: t('status.approved'),   badge: 'bg-teal-100 text-teal-700' },
+    rejected:           { label: t('status.rejected'),   badge: 'bg-red-100 text-red-600' },
+    contacted:          { label: t('status.contacted'),  badge: 'bg-blue-100 text-blue-700' },
+    inProgress:         { label: t('status.inProgress'), badge: 'bg-amber-100 text-amber-700' },
+    completed:          { label: t('status.completed'),  badge: 'bg-green-100 text-green-700' },
+    pendingForReject:   { label: t('status.pendingForReject'), badge: 'bg-amber-100 text-amber-700' },
+    pendingForCompleted:{ label: t('status.pendingForCompleted'),   badge: 'bg-teal-100 text-teal-600' },
   };
-
-  const serviceTypesLangs= {  
-    construction: t("services.construction"),
-    renovation: t("services.renovation"),
-    finishing: t("services.finishing"),
-    homeReady: t("services.homeReady")
-  }
-
-  const qualityLevelsLangs={
-    standard: t("quality.standard"),
-    plus: t("quality.plus"),
-    premium: t("quality.premium")
-  }
-
   const getMeta = (status) =>
-    STATUS_META[status] || { label: status || '—', badge: 'bg-gray-100 text-gray-500', notesKey: null };
+    STATUS_META[status] || { label: status || '—', badge: 'bg-gray-100 text-gray-500' };
 
-  /* ══ EmployeeNotes مع اسم الموظف لكل note ══ */
-  const EmployeeNotes = ({ request }) => {
-    const entries = EMPLOYEE_STATUSES
-      .map(s => {
-        const notesKey = STATUS_META[s]?.notesKey;
-        const note     = notesKey ? request[notesKey] : null;
-        const byName   = notesKey ? request[`${notesKey}ByName`] : null;
-        return note ? { status: s, note, byName } : null;
-      })
-      .filter(Boolean);
-
-    if (!entries.length) return null;
-
-    return (
-      <div className="space-y-2">
-        <p className="text-xs text-gray-400 font-semibold flex items-center gap-1">
-          <MessageSquare className="w-3 h-3" /> ملاحظات الموظف
-        </p>
-        {entries.map(({ status, note, byName }) => {
-          const meta = getMeta(status);
-          return (
-            <div key={status} className="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5 flex gap-3 items-start">
-              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap mt-0.5 flex-shrink-0 ${meta.badge}`}>
-                {meta.label}
-              </span>
-              <div className="flex-1">
-                <p className="text-sm text-gray-600 leading-relaxed">{note}</p>
-                {byName && (
-                  <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                    <User className="w-3 h-3" />
-                    {byName}
-                  </p>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
+  const serviceTypesLangs = {
+    construction: t('services.construction'),
+    renovation:   t('services.renovation'),
+    finishing:    t('services.finishing'),
+    homeReady:    t('services.homeReady'),
+  };
+  const qualityLevelsLangs = {
+    standard: t('quality.standard'),
+    plus:     t('quality.plus'),
+    premium:  t('quality.premium'),
   };
 
-  /* ── fetch ── */
-  const fetchRequests = async () => {
+  /* ══════════════════════════════════════════
+     FETCH HELPERS
+  ══════════════════════════════════════════ */
+
+  /** بناء الـ constraints بناء على التاب والفلاتر */
+  const buildConstraints = useCallback((tab, svcFilter, qlFilter) => {
+    const c = [];
+    if (tab !== 'all')  c.push(where('status', '==', tab));
+    if (svcFilter)      c.push(where('serviceType', '==', svcFilter));
+    if (qlFilter)       c.push(where('qualityLevel', '==', qlFilter));
+    return c;
+  }, []);
+
+  /** جيب عدد كل الـ tabs + banner counts */
+  const fetchCounts = useCallback(async () => {
+    try {
+      const statuses = ['pending', 'approved', 'contacted', 'inProgress', 'completed', 'rejected'];
+      const [allSnap, ...statusSnaps] = await Promise.all([
+        getCountFromServer(collection(db, 'requests')),
+        ...statuses.map(s =>
+          getCountFromServer(query(collection(db, 'requests'), where('status', '==', s)))
+        ),
+      ]);
+      const counts = { all: allSnap.data().count };
+      statuses.forEach((s, i) => { counts[s] = statusSnaps[i].data().count; });
+      setTabCounts(counts);
+      setTotalCount(counts.all);
+
+      /* banner */
+      const [rejSnap, compSnap] = await Promise.all([
+        getCountFromServer(query(
+          collection(db, 'requests'),
+          where('approvedByAdmin', '==', false),
+          where('status', '==', 'pendingForReject')
+        )),
+        getCountFromServer(query(
+          collection(db, 'requests'),
+          where('approvedForCompleting', '==', false),
+          where('status', '==', 'pendingForCompleted')
+        )),
+      ]);
+      setPendingRejectionCount(rejSnap.data().count);
+      setPendingCompletionCount(compSnap.data().count);
+    } catch (err) { console.error(err); }
+  }, []);
+
+  /** جيب صفحة معينة */
+  const fetchPage = useCallback(async (page, tab, svcFilter, qlFilter, cursorsMap) => {
     setLoading(true);
     try {
-      const q = query(collection(db, 'requests'), orderBy('createdAt', 'desc'));
-      const snap = await getDocs(q);
-      setRequests(snap.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().createdAt || null })));
+      const constraints = buildConstraints(tab, svcFilter, qlFilter);
+
+      /* عدد هذه الـ query تحديداً */
+      const countSnap = await getCountFromServer(
+        query(collection(db, 'requests'), ...constraints)
+      );
+      setTotalCount(countSnap.data().count);
+
+      /* بناء الـ query مع pagination */
+      const baseQ = query(
+        collection(db, 'requests'),
+        ...constraints,
+        orderBy('createdAt', 'desc'),
+        limit(PAGE_SIZE),
+      );
+
+      let pageQuery = baseQ;
+      if (page > 1 && cursorsMap[page - 1]) {
+        pageQuery = query(
+          collection(db, 'requests'),
+          ...constraints,
+          orderBy('createdAt', 'desc'),
+          startAfter(cursorsMap[page - 1]),
+          limit(PAGE_SIZE),
+        );
+      }
+
+      const snap = await getDocs(pageQuery);
+      const docs = snap.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().createdAt || null }));
+      setRequests(docs);
+
+      /* حفظ الـ cursor للصفحة الحالية */
+      if (snap.docs.length > 0) {
+        const lastDoc = snap.docs[snap.docs.length - 1];
+        setCursors(prev => ({ ...prev, [page]: lastDoc }));
+      }
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
-  };
+  }, [buildConstraints]);
 
-  const fetchEmployees = async () => {
+  /* fetch employees مرة واحدة */
+  const fetchEmployees = useCallback(async () => {
     try {
       const snap = await getDocs(collection(db, 'employees'));
       setEmployees(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (err) { console.error(err); }
-  };
+  }, []);
 
-
-  /* ── listen لطلبات الرفض من الموظف ── */
+  /* initial load */
   useEffect(() => {
-    const unsub = onSnapshot(
-      query(collection(db, 'requests'), where('approvedByAdmin', '==', false), where('status', '==', 'pendingForReject')),
-      (snap) => {
-        snap.docChanges().forEach(change => {
-          if (change.type === 'added' || change.type === 'modified') {
-            const data = { id: change.doc.id, ...change.doc.data() };
-            // حدّث الطلب في الـ state
-            setRequests(prev =>
-              prev.some(r => r.id === data.id)
-                ? prev.map(r => r.id === data.id ? { ...r, ...data } : r)
-                : prev
-            );
-          }
-        });
-      }
-    );
-    return unsub;
-  }, []);
+    fetchCounts();
+    fetchEmployees();
+  }, [fetchCounts, fetchEmployees]);
 
-  useEffect(()=>{
-    const fetchApprovedRequests=async()=>{
-    if(openPermissionModal){
-      try{
-        const q = query(collection(db, 'requests'),where("status","==", "approved"), orderBy('createdAt', 'desc'));
-      const snap = await getDocs(q);
-      setApprovedRequests(snap.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().createdAt || null })));
+  /* كل ما يتغير التاب أو الفلتر → reset pagination */
+  useEffect(() => {
+    setCursors({});
+    setCurrentPage(1);
+    fetchPage(1, activeTab, serviceFilter, qualityFilter, {});
+  }, [activeTab, serviceFilter, qualityFilter, fetchPage]);
 
-      }
-      catch(e){ console.log(e.message);
-      }
-    }
-  }
-  fetchApprovedRequests();
-  console.log(approvedRequests);
-  
-  },[openPermissionModal])
+  /* ── pagination navigation ── */
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
-
-   useEffect(() => {
-    const unsub = onSnapshot(
-      query(collection(db, 'requests'), where('approvedForCompleting', '==', false), where('status', '==', 'pendingForCompleted')),
-      (snap) => {
-        snap.docChanges().forEach(change => {
-          if (change.type === 'added' || change.type === 'modified') {
-            const data = { id: change.doc.id, ...change.doc.data() };
-            // حدّث الطلب في الـ state
-            setRequests(prev =>
-              prev.some(r => r.id === data.id)
-                ? prev.map(r => r.id === data.id ? { ...r, ...data } : r)
-                : prev
-            );
-          }
-        });
-      }
-    );
-    return unsub;
-  }, []);
-
-  useEffect(() => { fetchRequests(); fetchEmployees(); }, []);
-
-  /* ── approve ── */
-  const handleApprove = async () => {
-    setSubmitting(true);
-    try {
-      await updateDoc(doc(db, 'requests', selectedRequest.id), {
-        status:     'approved',
-        approvedAt: new Date(),
-      });
-      setRequests(prev => prev.map(r =>
-        r.id === selectedRequest.id ? { ...r, status: 'approved' } : r
-      ));
-      await addDoc(collection(db, 'notifications'), {
-        type:        'approvedRequest',
-        submittedAt: serverTimestamp(),
-        read:      false,
-        serviceType: selectedRequest.serviceType,
-      });
-      setOpenApprovalModal(false);
-    } catch (err) { console.error(err); }
-    finally { setSubmitting(false); }
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    fetchPage(page, activeTab, serviceFilter, qualityFilter, cursors);
   };
 
-  /* ── reject ── */
-  const handleReject = async () => {
-    setSubmitting(true);
-    try {
-      await updateDoc(doc(db, 'requests', selectedRequest.id), {
-        status:     'rejected',
-        rejectedAt: new Date(),
-      });
-      setRequests(prev => prev.map(r =>
-        r.id === selectedRequest.id ? { ...r, status: 'rejected' } : r
-      ));
-      setOpenRejectModal(false);
-    } catch (err) { console.error(err); }
-    finally { setSubmitting(false); }
-  };
-
-  /* ── الأدمن يوافق على رفض الموظف ← rejected نهائي ── */
-  const handleConfirmRejection = async () => {
-    if (!rejectionRequest) return;
-    setSubmitting(true);
-    try {
-      await updateDoc(doc(db, 'requests', rejectionRequest.id), {
-        status:          'rejected',
-        rejectedAt:      serverTimestamp(),
-        approvedByAdmin: true,
-      });
-      setRequests(prev => prev.map(r =>
-        r.id === rejectionRequest.id ? { ...r, status: 'rejected', approvedByAdmin: true } : r
-      ));
-      setOpenRejectionConfirm(false);
-      setRejectionRequest(null);
-    } catch (err) { console.error(err); }
-    finally { setSubmitting(false); }
-  };
-
-  const handleConfirmCompletion = async()=>{
-    if(!completionRequest) return;
-    try {
-      setLoad(true);
-      await updateDoc(doc(db, 'requests', completionRequest.id), {
-        status:          'completed',
-        completedAt:      serverTimestamp(),
-        approvedForCompleting: true,
-      });
-      setRequests(prev => prev.map(r =>
-        r.id === completionRequest.id ? { ...r, status: 'completed', approvedForCompleting: true } : r
-      ));
-      setOpenCompletionConfirm(false);
-      setCompletionRequest(null);
-    } catch (err) { console.error(err); }
-    finally { setLoad(false); }   
-  }
-
-   const handleRejectCompletion = async () => {
-    if (!completionRequest) return;
-    setLoad(true);
-    try {
-      await updateDoc(doc(db, 'requests', completionRequest.id), {
-        status:          'inProgress',
-        approvedForCompleting: null,
-      });
-      setRequests(prev => prev.map(r =>
-        r.id === completionRequest.id ? { ...r, status: 'inProgress', approvedForCompleting: null } : r
-      ));
-      setOpenCompletionConfirm(false);
-      setCompletionRequest(null);
-    } catch (err) { console.error(err); }
-    finally { setLoad(false); }
-  };
-
-  /* ── الأدمن يرفض طلب الرفض ← يرجع approved ── */
-  const handleDeclineRejection = async () => {
-    if (!rejectionRequest) return;
-    setSubmitting(true);
-    try {
-      await updateDoc(doc(db, 'requests', rejectionRequest.id), {
-        status:          'approved',
-        approvedByAdmin: null,
-      });
-      setRequests(prev => prev.map(r =>
-        r.id === rejectionRequest.id ? { ...r, status: 'approved', approvedByAdmin: null } : r
-      ));
-      setOpenRejectionConfirm(false);
-      setRejectionRequest(null);
-    } catch (err) { console.error(err); }
-    finally { setSubmitting(false); }
-  };
-
-  const handleExceptEmployees = async()=>{
-    if(!selectedEmployeeId || selectedRequests.length===0) return;
-    try{
-      setSending(true);
-      for(let req of selectedRequests){
-      await updateDoc(doc(db,"requests",req), {
-        exceptEmployees: arrayUnion(selectedEmployeeId)
-    });
-  }
-      setSending(false);
-      setOpenPermissionModal(false);
-    }catch(e){
-      console.log(e.message);
-      
-    }
-  }
-
-  /* ── lightbox ── */
+  /* ══════════════════════════════════════════
+     LIGHTBOX
+  ══════════════════════════════════════════ */
   const openLightbox  = (photos, index) => setLightbox({ open: true, photos, index });
   const closeLightbox = () => setLightbox({ open: false, photos: [], index: 0 });
   const prevPhoto = () => setLightbox(p => ({ ...p, index: (p.index - 1 + p.photos.length) % p.photos.length }));
   const nextPhoto = () => setLightbox(p => ({ ...p, index: (p.index + 1) % p.photos.length }));
   const handleDownload = async (url) => {
-    const res = await fetch(url); const blob = await res.blob();
+    const res = await fetch(url);
+    const blob = await res.blob();
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob); link.download = `photo-${Date.now()}.jpg`; link.click();
+    link.href = URL.createObjectURL(blob);
+    link.download = `photo-${Date.now()}.jpg`;
+    link.click();
   };
 
-  const openApprove = (r) => { setSelectedRequest(r); setSelectedEmployeeId(''); setOpenApprovalModal(true); };
-  const openReject  = (r) => { setSelectedRequest(r); setOpenRejectModal(true); };
+  /* ══════════════════════════════════════════
+     MODAL SUCCESS CALLBACKS
+     (تحديث الـ local state بدون re-fetch)
+  ══════════════════════════════════════════ */
+  const handleModalSuccess = (reqId, updatedFields) => {
+    setRequests(prev => prev.map(r => r.id === reqId ? { ...r, ...updatedFields } : r));
+    fetchCounts(); /* update counters */
+  };
 
-  /* ── counts ── */
-  const cnt = (s) => requests.filter(r => r.status === s).length;
-  /* طلبات الرفض المعلقة — approvedByAdmin === false */
-  const pendingRejectionCount = requests.filter(r => r.approvedByAdmin === false).length;
-  const pendingCompletionCount = requests.filter(r => r.approvedForCompleting === false).length;
+  /* ══════════════════════════════════════════
+     CLIENT-SIDE SEARCH FILTER
+     (بيشتغل على الـ 9 docs الحالية بس)
+  ══════════════════════════════════════════ */
+  const filteredRequests = searchQuery.trim()
+    ? requests.filter(r =>
+        r.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.serviceType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.location?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : requests;
 
-  const stats = [
-    { title: t('requests.totalRequests'),     value: requests.length, icon: FileText,  textColor: 'text-blue-500',   bgLight: 'bg-blue-50' },
-    { title: t('requests.completedRequests'), value: cnt('completed'), icon: FileCheck, textColor: 'text-green-500',  bgLight: 'bg-green-50' },
-    { title: t('requests.underReview'),       value: cnt('pending'),   icon: Clock,     textColor: 'text-orange-500', bgLight: 'bg-orange-50' },
+  /* ══════════════════════════════════════════
+     TABS CONFIG
+  ══════════════════════════════════════════ */
+  const tabs = [
+    { key: 'all',        label: t('requests.all'),      count: tabCounts.all },
+    { key: 'pending',    label: t('status.pending'),    count: tabCounts.pending },
+    { key: 'approved',   label: t('status.approved'),   count: tabCounts.approved },
+    { key: 'contacted',  label: t('status.contacted'),  count: tabCounts.contacted },
+    { key: 'inProgress', label: t('status.inProgress'), count: tabCounts.inProgress },
+    { key: 'completed',  label: t('status.completed'),  count: tabCounts.completed },
+    { key: 'rejected',   label: t('status.rejected'),   count: tabCounts.rejected },
   ];
 
-  const tabs = [
-    { key: 'all',        label: t('requests.all'),        count: requests.length },
-    { key: 'pending',    label: t('status.pending'),      count: cnt('pending') },
-    { key: 'approved',   label: t('status.approved'),     count: cnt('approved') },
-    { key: 'contacted',  label: t('status.contacted'),    count: cnt('contacted') },
-    { key: 'inProgress', label: t('status.inProgress'),   count: cnt('inProgress') },
-    { key: 'completed',  label: t('status.completed'),    count: cnt('completed') },
-    { key: 'rejected',   label: t('status.rejected'),     count: cnt('rejected') },
+  const stats = [
+    { title: t('requests.totalRequests'),     value: tabCounts.all,       icon: FileText,  textColor: 'text-blue-500',   bgLight: 'bg-blue-50' },
+    { title: t('requests.completedRequests'), value: tabCounts.completed, icon: FileCheck, textColor: 'text-green-500',  bgLight: 'bg-green-50' },
+    { title: t('requests.underReview'),       value: tabCounts.pending,   icon: Clock,     textColor: 'text-orange-500', bgLight: 'bg-orange-50' },
   ];
 
   const serviceOptions = [
     { key: '', label: t('requests.all') },
-    { key: 'construction',         label: t('services.construction') },
-    { key: 'finishing',        label: t('services.finishing') },
-    { key: 'renovation',        label: t('services.renovation') },
-    { key: 'homeReady', label: t('services.homeReady') },
+    { key: 'construction', label: t('services.construction') },
+    { key: 'finishing',    label: t('services.finishing') },
+    { key: 'renovation',   label: t('services.renovation') },
+    { key: 'homeReady',    label: t('services.homeReady') },
   ];
-
   const qualityOptions = [
     { key: '', label: t('requests.all') },
-    { key: 'standard',  label: t('quality.standard') },
-    { key: 'plus',   label: t('quality.plus') },
-    { key: 'premium', label: t('quality.premium') },
+    { key: 'standard', label: t('quality.standard') },
+    { key: 'plus',     label: t('quality.plus') },
+    { key: 'premium',  label: t('quality.premium') },
   ];
 
-  const filteredRequests = requests.filter(r => {
-    const matchTab     = activeTab === 'all' ? true : r.status === activeTab;
-    const matchSearch  = r.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         r.serviceType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         r.location?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchService = serviceFilter ? r.serviceType?.includes(serviceFilter) : true;
-    const matchQuality = qualityFilter ? r.qualityLevel?.includes(qualityFilter) : true;
-    return matchTab && matchSearch && matchService && matchQuality;
-  });
+  /* ══════════════════════════════════════════
+     PAGINATION UI HELPER
+  ══════════════════════════════════════════ */
+  const getPaginationPages = () => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages = [];
+    pages.push(1);
+    if (currentPage > 3)       pages.push('...');
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      pages.push(i);
+    }
+    if (currentPage < totalPages - 2) pages.push('...');
+    pages.push(totalPages);
+    return pages;
+  };
 
+  /* ══════════════════════════════════════════
+     RENDER
+  ══════════════════════════════════════════ */
   return (
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
 
-      {/* ── طلبات الرفض المعلقة — banner ── */}
+      {/* ── Banner: pending rejection ── */}
       {pendingRejectionCount > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -415,23 +409,18 @@ function Requests() {
               <AlertTriangle className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <p className="font-bold text-amber-800 text-sm"> {t("pendingRejectionTitle")}  </p>
-              <p className="text-xs text-amber-600 mt-0.5">
-                {pendingRejectionCount}     {t("pendingRejectionDesc")}
-              </p>
+              <p className="font-bold text-amber-800 text-sm">{t('pendingRejectionTitle')}</p>
+              <p className="text-xs text-amber-600 mt-0.5">{pendingRejectionCount} {t('pendingRejectionDesc')}</p>
             </div>
           </div>
-          <button
-            onClick={() => {
-              const first = requests.find(r => r.approvedByAdmin === false);
-              if (first) { setRejectionRequest(first); setOpenRejectionConfirm(true); }
-            }}
+          <button onClick={() => setOpenRejectionConfirm(true)}
             className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition">
-            {t("review")}
+            {t('review')}
           </button>
         </div>
       )}
-           {/* Pending Completion Requests */}
+
+      {/* ── Banner: pending completion ── */}
       {pendingCompletionCount > 0 && (
         <div className="bg-green-50 border border-green-200 rounded-2xl px-5 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -439,24 +428,18 @@ function Requests() {
               <AlertTriangle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="font-bold text-green-800 text-sm"> طلبات إنهاء بانتظار موافقتك  </p>
-              <p className="text-xs text-green-600 mt-0.5">
-                {pendingCompletionCount}     طلب إنهاه موظف ويحتاج قرارك
-              </p>
+              <p className="font-bold text-green-800 text-sm">طلبات إنهاء بانتظار موافقتك</p>
+              <p className="text-xs text-green-600 mt-0.5">{pendingCompletionCount} طلب إنهاه موظف ويحتاج قرارك</p>
             </div>
           </div>
-          <button
-            onClick={() => {
-              const first = requests.find(r => r.approvedForCompleting === false);
-              if (first) { setCompletionRequest(first); setOpenCompletionConfirm(true); }
-            }}
+          <button onClick={() => setOpenCompletionConfirm(true)}
             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition">
-            {t("review")}
+            {t('review')}
           </button>
         </div>
       )}
 
-      {/* Stats */}
+      {/* ── Stats ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {stats.map((stat, i) => {
           const Icon = stat.icon;
@@ -474,7 +457,7 @@ function Requests() {
         })}
       </div>
 
-      {/* Search & Filter */}
+      {/* ── Search & Filters ── */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
         <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
@@ -493,14 +476,12 @@ function Requests() {
           </button>
           <button onClick={() => setOpenAddModal(true)}
             className="px-4 py-2.5 bg-[#f2a057] hover:bg-orange-600 rounded-xl text-sm font-semibold text-gray-50 transition">
-            <Plus className="w-4 h-4 inline-block" />   {t("addNewRequest")}
+            <Plus className="w-4 h-4 inline-block" /> {t('addNewRequest')}
           </button>
-
-          <button onClick={()=> setOpenPermissionModal(true)}
+          <button onClick={() => setOpenPermissionModal(true)}
             className="px-4 py-2.5 bg-blue-950 hover:bg-blue-900 rounded-xl text-sm font-semibold text-gray-50 transition">
-            <Plus className="w-4 h-4 inline-block" /> {t("addPermission")}
+            <Plus className="w-4 h-4 inline-block" /> {t('addPermission')}
           </button>
-
         </div>
 
         {showFilters && (
@@ -531,7 +512,7 @@ function Requests() {
         )}
       </div>
 
-      {/* Tabs */}
+      {/* ── Tabs ── */}
       <div className="bg-white rounded-2xl p-1.5 shadow-sm border border-gray-100 overflow-x-auto">
         <div className="flex gap-1 w-full">
           {tabs.map(tab => (
@@ -546,37 +527,36 @@ function Requests() {
         </div>
       </div>
 
-      {/* Loading */}
+      {/* ── Loading ── */}
       {loading && (
         <div className="flex justify-center items-center py-16">
           <Loader2 className="w-8 h-8 text-[#f2a057] animate-spin" />
         </div>
       )}
 
-      {/* Cards */}
+      {/* ── Cards ── */}
       {!loading && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredRequests.map((request) => {
-            const svcColor = getServiceColor(request.serviceType);
-            const meta     = getMeta(request.status);
-            const hasPendingRejection = request.approvedByAdmin === false;
+            const svcColor             = getServiceColor(request.serviceType);
+            const meta                 = getMeta(request.status);
+            const hasPendingRejection  = request.approvedByAdmin === false;
+            const isPending            = request.status === 'pending';
 
             return (
               <div key={request.id}
-                className={`bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow duration-300
-                  ${hasPendingRejection ? 'border-amber-300' : 'border-gray-100'}`}>
+                className={`bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow duration-300 ${hasPendingRejection ? 'border-amber-300' : 'border-gray-100'}`}>
 
-                {/* Top Strip */}
+                {/* Top strip */}
                 <div className={`${svcColor.bg} ${svcColor.border} border-b px-5 py-3 flex items-center justify-between`}>
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${svcColor.dot}`}></div>
+                    <div className={`w-2 h-2 rounded-full ${svcColor.dot}`} />
                     <span className={`font-bold text-sm ${svcColor.text}`}>{serviceTypesLangs[request.serviceType]}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* badge طلب رفض معلق */}
                     {hasPendingRejection && (
                       <span className="text-[10px] font-bold px-2 py-1 bg-amber-100 text-amber-700 rounded-lg flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" />  {t("reviewRejectionRequest")}
+                        <AlertTriangle className="w-3 h-3" /> {t('reviewRejectionRequest')}
                       </span>
                     )}
                     {request.lastUpdatedByName && (
@@ -636,7 +616,6 @@ function Requests() {
                     </div>
                   )}
 
-                  {/* ملاحظات الموظف مع اسمه */}
                   <EmployeeNotes request={request} />
 
                   {request.photos?.length > 0 && (
@@ -659,27 +638,29 @@ function Requests() {
 
                 {/* Footer */}
                 <div className="px-5 pb-4 flex items-center justify-end gap-2">
-                  {/* زرار مراجعة الرفض المعلق */}
                   {hasPendingRejection && (
-                    <button
-                      onClick={() => { setRejectionRequest(request); setOpenRejectionConfirm(true); }}
+                    <button onClick={() => setOpenRejectionConfirm(true)}
                       className="flex items-center gap-1.5 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition">
-                      <AlertTriangle className="w-4 h-4" />   {t("reviewRejectionRequest")}
+                      <AlertTriangle className="w-4 h-4" /> {t('reviewRejectionRequest')}
                     </button>
                   )}
-
-                  {/* زراير الموافقة والرفض للـ pending */}
                   {canAction(request.status) && (
                     <>
-                      <button onClick={() => openApprove(request)}
+                      <button onClick={() => { setSelectedRequest(request); setOpenApprovalModal(true); }}
                         className="px-3 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-sm font-bold transition shadow-sm shadow-green-200">
                         <CheckCircle2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => openReject(request)}
+                      <button onClick={() => { setSelectedRequest(request); setOpenRejectModal(true); }}
                         className="px-3 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold transition shadow-sm shadow-red-200">
                         <X className="w-4 h-4" />
                       </button>
                     </>
+                  )}
+                  {!isPending && request.status !== 'completed' && request.status !== 'rejected' && (
+                    <button onClick={() => { setSelectedRequest(request); setOpenUpdateModal(true); }}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-blue-950 hover:bg-blue-900 text-white rounded-xl text-sm font-bold transition shadow-sm">
+                      <ClipboardEdit className="w-4 h-4" /> {t('employeeRequests.card.updateStatus')}
+                    </button>
                   )}
                 </div>
               </div>
@@ -688,7 +669,7 @@ function Requests() {
         </div>
       )}
 
-      {/* Empty */}
+      {/* ── Empty ── */}
       {!loading && filteredRequests.length === 0 && (
         <div className="bg-white rounded-2xl p-16 text-center border border-gray-100">
           <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -699,314 +680,141 @@ function Requests() {
         </div>
       )}
 
-      {/* Lightbox */}
+      {/* ── Pagination ── */}
+      {!loading && totalPages > 1 && (
+        <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-sm text-gray-500">
+            {t('pagination.showing') || 'عرض'}
+            {' '}<span className="font-bold text-blue-950">{(currentPage - 1) * PAGE_SIZE + 1}</span>
+            {' '}—{' '}
+            <span className="font-bold text-blue-950">{Math.min(currentPage * PAGE_SIZE, totalCount)}</span>
+            {' '}{t('pagination.of') || 'من'}
+            {' '}<span className="font-bold text-blue-950">{totalCount}</span>
+          </p>
+
+          <div className="flex items-center gap-1">
+            <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}
+              className="p-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+              {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
+
+            {getPaginationPages().map((p, i) =>
+              p === '...' ? (
+                <span key={`dots-${i}`} className="px-2 text-gray-400 text-sm">…</span>
+              ) : (
+                <button key={p} onClick={() => goToPage(p)}
+                  className={`w-9 h-9 rounded-xl text-sm font-semibold transition ${
+                    p === currentPage
+                      ? 'bg-[#f2a057] text-white shadow-sm'
+                      : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                  }`}>
+                  {p}
+                </button>
+              )
+            )}
+
+            <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}
+              className="p-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+              {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Lightbox ── */}
       {lightbox.open && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center" onClick={closeLightbox}>
           <button onClick={closeLightbox} className="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition"><X className="w-5 h-5" /></button>
           <button onClick={e => { e.stopPropagation(); handleDownload(lightbox.photos[lightbox.index]); }} className="absolute top-4 left-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition"><Download className="w-5 h-5" /></button>
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-xs bg-white/10 px-3 py-1 rounded-full">{lightbox.index + 1} / {lightbox.photos.length}</div>
-          {lightbox.photos.length > 1 && <button onClick={e => { e.stopPropagation(); prevPhoto(); }} className="absolute left-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition"><ChevronLeft className="w-5 h-5" /></button>}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-xs bg-white/10 px-3 py-1 rounded-full">
+            {lightbox.index + 1} / {lightbox.photos.length}
+          </div>
+          {lightbox.photos.length > 1 && (
+            <button onClick={e => { e.stopPropagation(); prevPhoto(); }} className="absolute left-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
           <img src={lightbox.photos[lightbox.index]} className="max-w-[88vw] max-h-[82vh] rounded-2xl object-contain shadow-2xl" onClick={e => e.stopPropagation()} alt="zoom" />
-          {lightbox.photos.length > 1 && <button onClick={e => { e.stopPropagation(); nextPhoto(); }} className="absolute right-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition"><ChevronRight className="w-5 h-5" /></button>}
+          {lightbox.photos.length > 1 && (
+            <button onClick={e => { e.stopPropagation(); nextPhoto(); }} className="absolute right-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-3 transition">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
           {lightbox.photos.length > 1 && (
             <div className="absolute bottom-4 flex gap-2">
               {lightbox.photos.map((url, idx) => (
-                <img key={idx} src={url} onClick={e => { e.stopPropagation(); setLightbox(p => ({ ...p, index: idx })); }}
-                  className={`w-12 h-12 rounded-lg object-cover cursor-pointer transition ${idx === lightbox.index ? 'ring-2 ring-[#f2a057] opacity-100' : 'opacity-40 hover:opacity-70'}`} alt="" />
+                <img key={idx} src={url}
+                  onClick={e => { e.stopPropagation(); setLightbox(p => ({ ...p, index: idx })); }}
+                  className={`w-12 h-12 rounded-lg object-cover cursor-pointer transition ${idx === lightbox.index ? 'ring-2 ring-[#f2a057] opacity-100' : 'opacity-40 hover:opacity-70'}`}
+                  alt="" />
               ))}
             </div>
           )}
         </div>
       )}
 
-      {/* ══════ APPROVAL MODAL ══════ */}
-      {openApprovalModal && (
-        <Modal onClose={() => setOpenApprovalModal(false)}>
-          <div className="flex flex-col gap-2">
-            <h1 className="font-bold text-xl px-2 text-blue-950 border-r-4 border-r-orange-600 py-1">  {t("approveRequest")}</h1>
-            <hr className="text-gray-200 rounded-full w-full" />
-            <div className="bg-blue-50 py-3 px-4 border-dashed border-blue-300 border rounded-lg">
-              <span className="text-xs bg-orange-300 font-semibold rounded-full px-4">{selectedRequest.serviceType}</span>
-              <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
-                <div className="flex flex-col items-start">
-                  <h3 className="text-gray-500 text-xs"><User className="w-3.5 h-3.5 inline-block ml-1" />{t("clientName")} </h3>
-                  <p className="font-semibold text-sm text-blue-950 mt-0.5">{selectedRequest.name}</p>
-                </div>
-                <div className="flex flex-col items-start">
-                  <h3 className="text-gray-500 text-xs"><Phone className="w-3.5 h-3.5 inline-block ml-1" />{t("phoneNumber")} </h3>
-                  <p className="font-semibold text-sm text-blue-950 mt-0.5">{selectedRequest.phoneNumber}</p>
-                </div>
-                <div className="flex flex-col items-start">
-                  <h3 className="text-gray-500 text-xs"><MapPin className="w-3.5 h-3.5 inline-block ml-1" />{t("location")}</h3>
-                  <p className="font-semibold text-sm text-blue-950 mt-0.5">{selectedRequest.location || '—'}</p>
-                </div>
-                <div className="flex flex-col items-start">
-                  <h3 className="text-gray-500 text-xs"><Home className="w-3.5 h-3.5 inline-block ml-1" />{t("area")}</h3>
-                  <p className="font-semibold text-sm text-blue-950 mt-0.5">{selectedRequest.area} م<sup>2</sup></p>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2 mt-3 justify-end">
-              <button onClick={() => setOpenApprovalModal(false)}
-                className="px-5 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
-                {t("cancel")}
-              </button>
-              <button onClick={handleApprove} disabled={submitting}
-                className="px-10 py-2 bg-blue-950 hover:bg-blue-900 text-white rounded-lg text-sm font-bold transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                {t("send")}
-              </button>
-            </div>
-          </div>
-        </Modal>
+      {/* ══ MODALS ══ */}
+      {openApprovalModal && selectedRequest && (
+        <ApprovalModal
+          selectedRequest={selectedRequest}
+          onClose={() => setOpenApprovalModal(false)}
+          onSuccess={handleModalSuccess}
+        />
       )}
 
-      {/* ══════ REJECT MODAL ══════ */}
-      {openRejectModal && (
-        <Modal onClose={() => setOpenRejectModal(false)}>
-          <div className="flex flex-col gap-4">
-            <h1 className="font-bold text-xl px-2 text-blue-950 border-r-4 border-r-red-500 py-1">{t("rejectRequest")} </h1>
-            <hr className="text-gray-200 rounded-full w-full" />
-            <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
-                <span className="text-red-600 font-bold text-lg">{selectedRequest.name?.charAt(0)}</span>
-              </div>
-              <div>
-                <p className="font-bold text-gray-800">{selectedRequest.name}</p>
-                <p className="text-sm text-gray-500">{selectedRequest.serviceType} — {selectedRequest.phoneNumber}</p>
-              </div>
-            </div>
-            <p className="text-sm text-gray-600 text-center">
-             {t("confirmRejectQuestion")} <span className="font-bold text-red-600">{t("rejectedStatus")}</span>.
-            </p>
-            <div className="flex gap-2 justify-end">
-              <button onClick={() => setOpenRejectModal(false)}
-                className="px-5 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
-                {t("cancel")}
-              </button>
-              <button onClick={handleReject} disabled={submitting}
-                className="px-8 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold transition shadow-sm shadow-red-200 flex items-center gap-2 disabled:opacity-60">
-                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                 {t("confirmReject")}
-              </button>
-            </div>
-          </div>
-        </Modal>
+      {openRejectModal && selectedRequest && (
+        <RejectModal
+          selectedRequest={selectedRequest}
+          onClose={() => setOpenRejectModal(false)}
+          onSuccess={handleModalSuccess}
+        />
       )}
 
-      {/* ══════ REJECTION CONFIRM MODAL ══════ */}
-      {openRejectionConfirm && rejectionRequest && (
-        <Modal onClose={() => { setOpenRejectionConfirm(false); setRejectionRequest(null); }}>
-          <div className="flex flex-col gap-4">
-            <h1 className="font-bold text-xl px-2 text-blue-950 border-r-4 border-r-amber-500 py-1"> {t("reviewRejection")}</h1>
-            <hr className="text-gray-200 rounded-full w-full" />
-
-            <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-4 flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-800">{rejectionRequest.name}</p>
-                <p className="text-sm text-gray-500">{rejectionRequest.serviceType} — {rejectionRequest.location || '—'}</p>
-                {rejectionRequest.rejectedByEmployeeId && (
-                  <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                    <User className="w-3 h-3" />
-                   {t("rejectionRequestedByEmployee")}: {rejectionRequest.lastUpdatedByName || rejectionRequest.rejectedByEmployeeName}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <p className="text-sm text-gray-600 text-center leading-relaxed">
-             {t("employeeAskedReject")}
-            </p>
-
-            <div className="flex gap-2 justify-end">
-              <button onClick={() => { setOpenRejectionConfirm(false); setRejectionRequest(null); }}
-                className="px-4 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition">
-                {t("later")}
-              </button>
-              <button onClick={handleDeclineRejection} disabled={submitting}
-                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 disabled:opacity-50">
-                {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                {t("acceptRequest")}   
-              </button>
-              <button onClick={handleConfirmRejection} disabled={submitting}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold transition shadow-sm shadow-red-200 flex items-center gap-2 disabled:opacity-60">
-                {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-               {t("approveFinalRejection")}
-              </button>
-            </div>
-          </div>
-        </Modal>
+      {openRejectionConfirm && (
+        <RejectionConfirmModal
+          onClose={() => { setOpenRejectionConfirm(false); fetchCounts(); }}
+          onSuccess={handleModalSuccess}
+          openLightbox={openLightbox}
+        />
       )}
 
-      {/* ==========Completion Confirm Modal     */}
-
-      {openCompletionConfirm && completionRequest && (
-        <Modal onClose={() => { setOpenCompletionConfirm(false); setCompletionRequest(null); }}>
-          <div className="flex flex-col gap-4">
-            <h1 className="font-bold text-xl px-2 text-blue-950 border-r-4 border-r-green-500 py-1"> مراجعه طلب انهاء </h1>
-            <hr className="text-gray-200 rounded-full w-full" />
-
-            <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-4 flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-800">{completionRequest.name}</p>
-                <p className="text-sm text-gray-500">{completionRequest.serviceType} — {completionRequest.location || '—'}</p>
-                {completionRequest.lastUpdatedByName && (
-                  <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-                    <User className="w-3 h-3" />
-                   تم ارسال طلب الانهاء بواسطه: {completionRequest.lastUpdatedByName || completionRequest.rejectedByEmployeeName}
-                  </p>
-                )}
-              </div>
-              
-            </div>
-                <p className='my-2 bg-gray-50 shadow-sm p-2  w-full'> <span className='block text-xs text-gray-600 ' > الملاحظات </span> {completionRequest.notesForCompleted} </p>
-
-            
-
-            <div className="flex gap-2 justify-end">
-              
-              <button onClick={handleConfirmCompletion} disabled={submitting}
-                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 disabled:opacity-50">
-                {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                إنهاء  
-              </button>
-              <button onClick={handleRejectCompletion} disabled={submitting}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold transition shadow-sm shadow-red-200 flex items-center gap-2 disabled:opacity-60">
-                {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-               رفض
-              </button>
-            </div>
-          </div>
-        </Modal>
+      {openCompletionConfirm && (
+        <CompletionConfirmModal
+          onClose={() => { setOpenCompletionConfirm(false); fetchCounts(); }}
+          onSuccess={handleModalSuccess}
+          openLightbox={openLightbox}
+        />
       )}
 
-      {/* ══════ ADD REQUEST MODAL ══════ */}
+      {openUpdateModal && selectedRequest && currentUser && (
+        <UpdateStatusModal
+          selectedRequest={selectedRequest}
+          currentUser={currentUser}
+          onClose={() => setOpenUpdateModal(false)}
+          onSuccess={handleModalSuccess}
+        />
+      )}
+
+      {openPermissionModal && (
+        <PermissionModal
+          employees={employees}
+          requests={requests}
+          onClose={() => setOpenPermissionModal(false)}
+        />
+      )}
+
       {openAddModal && (
-        <Modal onClose={() => setOpenAddModal(false)}>
-          <h1 className="font-bold text-xl px-2 text-blue-950 border-r-4 mb-3 border-r-orange-600 py-1"> {t("addNewRequest")} </h1>
-          <hr className="text-gray-200 rounded-full w-full mb-4" />
-          <AddRequestForm setShowSuccessModal={setShowSuccessModal} />
-        </Modal>
+        <AddRequestModal
+          onClose={() => setOpenAddModal(false)}
+          setShowSuccessModal={setShowSuccessModal}
+        />
       )}
 
-     {openPermissionModal && (
-  <Modal onClose={() => setOpenPermissionModal(false)}>
-    <div className="flex flex-col gap-2">
-
-      <h1 className="font-bold text-xl px-2 text-blue-950 border-r-4 border-r-orange-600 py-1">
-       {t("addPermission")}
-      </h1>
-
-      <hr className="text-gray-200 rounded-full mb-2 w-full" />
-
-      <div className="flex flex-col gap-2">
-        <label className="text-xs text-gray-500 font-semibold">
-         {t("selectEmployee")}
-        </label>
-
-        <select
-          value={selectedEmployeeId}
-          onChange={(e) => setSelectedEmployeeId(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-        >
-          <option value=''> {t("choose")} </option>
-          {employees.map((emp) => (
-            <option key={emp.id} value={emp.id}>
-              {emp.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <h2 className="text-sm font-semibold text-gray-700 mt-2">
-       {t("requestsExcept")}
-      </h2>
-
-      <div className="flex flex-col gap-2 max-h-80 overflow-y-auto">
-
-        {approvedRequests?.map((request) => (
-          <div
-            key={request.id}
-            className={`border rounded-lg p-3 cursor-pointer transition 
-            ${selectedRequests.some((r) => r === request.id)
-                ? "bg-orange-100 border-orange-400"
-                : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-              }`}
-            onClick={() => {
-              let arr;
-              if (selectedRequests.some((r) => r === request.id)) {
-                arr = selectedRequests.filter((r) => r !== request.id);
-              } else {
-                arr = [...selectedRequests, request.id];
-              }
-              setSelectedRequests(arr);
-            }}
-          >
-
-            <div className="flex items-center justify-between flex-wrap gap-3">
-
-              <div className="flex flex-col items-start">
-                <h3 className="text-gray-500 text-xs"> {t("clientName")}</h3>
-                <p className="font-semibold text-sm text-blue-950 mt-0.5">
-                  {request.name}
-                </p>
-              </div>
-
-              <div className="flex flex-col items-start">
-                <h3 className="text-gray-500 text-xs"> {t("serviceType")} </h3>
-                <p className="font-semibold text-sm text-blue-950 mt-0.5">
-                  {serviceTypesLangs[request.serviceType]}
-                </p>
-              </div>
-
-              <div className="flex flex-col items-start">
-                <h3 className="text-gray-500 text-xs"> {t("qualityLevel")} </h3>
-                <p className="font-semibold text-sm text-blue-950 mt-0.5">
-                  {qualityLevelsLangs[request.qualityLevel]}
-                </p>
-              </div>
-
-              <div className="flex flex-col items-start">
-                <h3 className="text-gray-500 text-xs">{t("area")}</h3>
-                <p className="font-semibold text-sm text-blue-950 mt-0.5">
-                  {request.area}
-                </p>
-              </div>
-
-            </div>
-          </div>
-        ))}
-
-      </div>
-
-      <div className="flex gap-2 mt-3 justify-end">
-
-        <button
-          onClick={() => setOpenPermissionModal(false)}
-          className="px-5 py-2 cursor-pointer rounded-xl border border-gray-200 text-sm text-gray-600 bg-gray-50 hover:bg-gray-100 transition"
-        >
-          {t("cancel")}
-        </button>
-
-        <button
-          disabled={selectedRequests.length===0}
-          onClick={() => handleExceptEmployees()}
-          className={`px-10 py-2 ${selectedRequests.length===0 || sending?"bg-gray-300 text-gray-500":"bg-blue-950 hover:bg-blue-900 text-white"}  rounded-lg text-sm font-bold transition`}
-        >
-          {sending? t("sending"): t("send")}
-        </button>
-
-      </div>
-
-    </div>
-  </Modal>
-)}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        isRTL={isRTL}
+      />
 
     </div>
   );

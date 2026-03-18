@@ -38,8 +38,11 @@ function DashboardLayout() {
         q= query(collection(db, "notifications"), where("type", "in",["updatedRequest", "newRequest", "rejectionRequest"]))
       }
       if(role === "employee"){
-        q= query(collection(db, "notifications"), where("type", "in",["updatedRequest", "newRequest", "approvedRequest"]));
-
+        q= query(
+          collection(db, "notifications"),
+          where("type", "in", ["approveCompletionRequest", "rejectCompletionRequest", "rejectRejectionRequest", "approveRejectionRequest"]),
+          where("employeeId", "==", user.uid)
+        );
       }
       const res = await getDocs(q);
        const filterd= res.docs.map(doc => ({ id: doc.id, ...doc.data() }))
@@ -257,6 +260,42 @@ function DashboardLayout() {
                       });
                       dot = "bg-red-500";
                       Role = ["admin"];
+                    }
+
+                    if (notification.type === "approveCompletionRequest") {
+                      text = t("notificationApproveCompletionRequest", {
+                        client: notification.client,
+                        date: date
+                      });
+                      dot = "bg-green-500";
+                      Role = ["employee"];
+                    }
+
+                    if (notification.type === "rejectCompletionRequest") {
+                      text = t("notificationRejectCompletionRequest", {
+                        client: notification.client,
+                        date: date
+                      });
+                      dot = "bg-red-500";
+                      Role = ["employee"];
+                    }
+
+                    if (notification.type === "approveRejectionRequest") {
+                      text = t("notificationApproveRejectionRequest", {
+                        client: notification.client,
+                        date: date
+                      });
+                      dot = "bg-green-500";
+                      Role = ["employee"];
+                    }
+
+                    if (notification.type === "rejectRejectionRequest") {
+                      text = t("notificationRejectRejectionRequest", {
+                        client: notification.client,
+                        date: date
+                      });
+                      dot = "bg-red-500";
+                      Role = ["employee"];
                     }
 
                       if (!Role.includes(role)) return null;
