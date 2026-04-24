@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   FileText, FileCheck, Clock, Search, Filter, MapPin, Home, Phone,
   Loader2, X, Download, ChevronLeft, ChevronRight, CheckCircle2, User,
-  Circle, Plus, AlertTriangle, ClipboardEdit, CheckCircle
+  Circle, Plus, AlertTriangle, ClipboardEdit, CheckCircle,
+  Mail
 } from 'lucide-react';
 import { auth, db } from '../../firebase';
 import {
@@ -586,10 +587,18 @@ function Requests() {
                         </p>
                       </div>
                     </div>
+                    <div className='flex flex-col gap-1'>
                     <a href={`tel:${request.phoneNumber}`}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs text-gray-600 font-medium transition">
                       <Phone className="w-3.5 h-3.5" /> {request.phoneNumber}
                     </a>
+
+                    <a href={`mailto:${request.email}`}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs text-gray-600 font-medium transition">
+                      <Mail className="w-3.5 h-3.5" /> {request?.email || "-"}{" "}
+                    </a>
+                    </div>
+
                   </div>
 
                   <div className="border-t border-dashed border-gray-100" />

@@ -31,8 +31,9 @@ function AddRequestForm({setShowSuccessModal}){
         area: Yup.string().required(t("required")),
         notes: Yup.string(),
         photo: Yup.array(),
-        phoneNumber: Yup.number().typeError("يجب أن يكون أرقام").required(t("required")),
+        phoneNumber: Yup.number().typeError(t("mustBeNumber")).required(t("required")),
         name: Yup.string().required(t("required")),
+        email: Yup.string().email(t("mustBeEmail")).required(t("required")),
       });
     
        const [selectedService, setSelectedService] = useState("");
@@ -109,6 +110,7 @@ function AddRequestForm({setShowSuccessModal}){
               photo: [],
               phoneNumber: "",
               name: "",
+              email: ""
             }}
             validationSchema={validationForm}
             onSubmit={handleSubmit}
@@ -266,6 +268,7 @@ function AddRequestForm({setShowSuccessModal}){
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+
                   <div>
                     <p className="text-gray-800 font-semibold mb-1 text-start">{t('form.fullName')}</p>
                     <input
@@ -277,8 +280,8 @@ function AddRequestForm({setShowSuccessModal}){
                       placeholder={t('form.fullNamePlaceholder')}
                     />
            <ErrorMessage name="name" component="p" className="text-sm text-red-600 inline-block" />
-
                   </div>
+
                   <div>
                     <p className="text-gray-800 font-semibold mb-1 text-start">{t('form.phone')}</p>
                     <input
@@ -292,7 +295,22 @@ function AddRequestForm({setShowSuccessModal}){
            <ErrorMessage name="phoneNumber" component="p" className="text-sm text-red-600 inline-block" />
 
                   </div>
+
                 </div>
+
+                <div>
+                    <p className="text-gray-800 font-semibold mb-1 text-start">{t('form.email')}</p>
+                    <input
+                      name="email"
+                      type="email"
+                      value={values.email}
+                      onChange={handleChange}
+                      className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 transition text-xs"
+                      placeholder={t('form.emailPlaceholder')}
+                    />
+           <ErrorMessage name="email" component="p" className="text-sm text-red-600 inline-block" />
+
+                  </div>
 
                 <button
                   type="submit"

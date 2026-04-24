@@ -5,10 +5,14 @@ import Footer from "./components/Footer";
 import hero from "/hero.jpg";
 import { Link } from "react-router-dom";
 import { useState, useEffect,useRef} from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "./firebase";
 
 function HomePage() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+
+  const[pricing, setPricing] = useState(null);
 
   const features = [
     { icon: <Shield className="w-12 h-12" />, title: t('features.highQuality'), description: t('features.highQualityDesc') },
@@ -26,6 +30,17 @@ function HomePage() {
     { title: t('services.homeReady'), description: t('services.homeReadyDesc'), icon: <HomeService className="w-16 h-16" />, image: "https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?w=1280", to: "/home-preparation" }
   ];
 
+  const getSettings = async ()=>{
+    const res = await getDoc(doc(db,"settings", "pricing"));
+    console.log(res.data());
+    
+    setPricing(res.data());
+  }
+
+  useEffect(()=>{
+    getSettings();
+  },[])
+
 
 const qualityLevels = [
   {
@@ -33,7 +48,7 @@ const qualityLevels = [
     description: t('quality.standardDesc'),
     icon: <Shield className="w-6 h-6" />,
     warranty: t('quality.warranty1'),
-    price: t('qualityPages.standard.price'),
+    price: t('qualityPages.standard.price', {value : pricing?.standard ||0}),
     suitable: t('qualityPages.standard.suitable'),
     accentColor: 'border-t-blue-500',
     iconColor: 'text-blue-500 bg-blue-50',
@@ -52,7 +67,7 @@ const qualityLevels = [
     icon: <Star className="w-6 h-6" />,
     recommended: true,
     warranty: t('quality.warranty2'),
-    price: t('qualityPages.plus.price'),
+    price: t('qualityPages.plus.price' , {value : pricing?.plus ||0 }),
     suitable: t('qualityPages.plus.suitable'),
     accentColor: 'border-t-[#f2a057]',
     iconColor: 'text-[#f2a057] bg-orange-50',
@@ -70,7 +85,7 @@ const qualityLevels = [
     description: t('quality.premiumDesc'),
     icon: <Crown className="w-6 h-6" />,
     warranty: t('quality.warranty3'),
-    price: t('qualityPages.premium.price'),
+    price: t('qualityPages.premium.price' , {value : pricing?.premium || 0}),
     suitable: t('qualityPages.premium.suitable'),
     accentColor: 'border-t-blue-950',
     iconColor: 'text-blue-950 bg-blue-50',

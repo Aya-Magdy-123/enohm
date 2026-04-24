@@ -108,6 +108,8 @@
     "fullNamePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
     "phone": "Telefonnummer",
     "phonePlaceholder": "Geben Sie Ihre Telefonnummer ein",
+    "email": "E-Mail-Adresse",
+    "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
     "submit": "Anfrage senden",
     "success": "Anfrage erfolgreich gesendet! Wir werden uns bald bei Ihnen melden."
   },
@@ -166,7 +168,7 @@
   "standard": {
     "hero": "Zuverlässige Qualität zum richtigen Preis",
     "heroSub": "Zertifizierte Materialien und ein professionelles Team für eine effiziente Projektdurchführung",
-    "price": "Ab 800 € / m²",
+    "price": "Ab {{value}} € / m²",
     "suitable": "Budgetprojekte",
     "f1": "Zertifizierte Baumaterialien nach deutschen Normen",
     "f2": "Erfahrenes Team mit mindestens 5 Jahren Erfahrung",
@@ -180,7 +182,7 @@
   "plus": {
     "hero": "Verbesserte Qualität für bessere Ergebnisse",
     "heroSub": "Hochwertige Materialien und kontinuierliche Überwachung für höchste Qualitätsstandards",
-    "price": "Ab 1.200 € / m²",
+    "price": "Ab {{value}} € / m²",
     "suitable": "Mittlere Wohnprojekte",
     "f1": "Hochwertige Materialien von zertifizierten Lieferanten",
     "f2": "Dedizierter Fachingineur während des gesamten Projekts",
@@ -195,7 +197,7 @@
   "premium": {
     "hero": "Luxus in jedem Detail",
     "heroSub": "Die feinsten europäischen Materialien und VIP-Service für außergewöhnliche Projekte",
-    "price": "Ab 2.000 € / m²",
+    "price": "Ab {{value}} € / m²",
     "suitable": "Villen & Luxusprojekte",
     "f1": "Luxusmaterialien von Top-europäischen Lieferanten",
     "f2": "Dedizierter Projektingenieur von Anfang bis Ende",
@@ -539,6 +541,8 @@
   },
 
   "required":"Erforderlich",
+  "mustBeNumber":"Muss eine Zahl sein",
+  "mustBeEmail":"Muss eine gültige E-Mail-Adresse sein",
 
    "pendingRejectionTitle": "Abgelehnte Anfragen warten auf Ihre Genehmigung",
   "pendingRejectionDesc": "Anfragen wurden vom Mitarbeiter abgelehnt und benötigen Ihre Entscheidung",
@@ -610,7 +614,17 @@
     "notificationApproveCompletionRequest": "Der Abschlussantrag für den Kunden {{client}} wurde am {{date}} genehmigt",
 "notificationRejectCompletionRequest": "Der Abschlussantrag für den Kunden {{client}} wurde am {{date}} abgelehnt",
 "notificationApproveRejectionRequest": "Der Ablehnungsantrag für den Kunden {{client}} wurde am {{date}} genehmigt",
-"notificationRejectRejectionRequest": "Der Ablehnungsantrag für den Kunden {{client}} wurde am {{date}} abgelehnt"
+"notificationRejectRejectionRequest": "Der Ablehnungsantrag für den Kunden {{client}} wurde am {{date}} abgelehnt",
+
+"pricing": {
+  "title": "Preispläne",
+  "subtitle": "Legen Sie den Preis für jeden verfügbaren Plan fest",
+  "priceLabel": "Preis",
+  "plus": "Gut",
+  "standard": "Standard",
+  "premium": "Premium",
+  "save":"Speichern"
+}
 
 
 

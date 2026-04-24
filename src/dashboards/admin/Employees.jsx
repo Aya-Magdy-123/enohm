@@ -218,7 +218,7 @@ function Employees() {
         <div className="flex gap-1">
           {tabs.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 px-2 md:p-4 py-2.5 rounded-xl text-sm font-semibold transition ${activeTab === tab.key ? 'bg-[#f2a057] text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
+              className={`flex-1 px-2 md:p-2.5 py-2.5 rounded-xl text-sm font-semibold transition ${activeTab === tab.key ? 'bg-[#f2a057] text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
               {tab.label}
               <span className={`mx-1.5 px-1.5 py-0.5 rounded-md text-xs ${activeTab === tab.key ? 'bg-white/20' : 'bg-gray-100'}`}>
                 {tab.count}

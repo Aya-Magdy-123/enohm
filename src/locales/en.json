@@ -108,6 +108,8 @@
     "fullNamePlaceholder": "Enter your full name",
     "phone": "Mobile Number",
     "phonePlaceholder": "Enter your mobile number",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email address",
     "submit": "Submit Request",
     "success": "Your request has been sent successfully! We will contact you soon."
   },
@@ -164,7 +166,7 @@
   "standard": {
     "hero": "Reliable Quality at the Right Price",
     "heroSub": "Certified materials and a professional team to complete your project efficiently",
-    "price": "From 800 € / m²",
+    "price": "From {{value}} € / m²",
     "suitable": "Budget Projects",
     "f1": "Certified building materials compliant with German standards",
     "f2": "Experienced team with at least 5 years of experience",
@@ -178,7 +180,7 @@
   "plus": {
     "hero": "Enhanced Quality for Better Results",
     "heroSub": "Superior materials and continuous oversight to ensure the highest quality standards",
-    "price": "From 1,200 € / m²",
+    "price": "From {{value}} € / m²",
     "suitable": "Mid-Range Residential Projects",
     "f1": "High-quality materials from certified suppliers",
     "f2": "Dedicated specialist engineer throughout the project",
@@ -193,7 +195,7 @@
   "premium": {
     "hero": "Luxury in Every Detail",
     "heroSub": "The finest European materials and VIP service for exceptional projects that settle for nothing less than perfection",
-    "price": "From 2,000 € / m²",
+    "price": "From {{value}} € / m²",
     "suitable": "Villas & Luxury Projects",
     "f1": "Luxury materials imported from top European suppliers",
     "f2": "Dedicated project engineer throughout the journey",
@@ -539,6 +541,9 @@
   },
 
   "required":"required",
+  "mustBeNumber":"Must be a number",
+  "mustBeEmail":"Must be a valid email address",
+
 
    "pendingRejectionTitle": "Rejected requests awaiting your approval",
   "pendingRejectionDesc": "requests rejected by the employee and need your decision",
@@ -608,7 +613,17 @@
     "notificationApproveCompletionRequest": "The service completion request for client {{client}} has been approved on {{date}}",
 "notificationRejectCompletionRequest": "The service completion request for client {{client}} has been rejected on {{date}}",
 "notificationApproveRejectionRequest": "The service rejection request for client {{client}} has been approved on {{date}}",
-"notificationRejectRejectionRequest": "The service rejection request for client {{client}} has been rejected on {{date}}"
+"notificationRejectRejectionRequest": "The service rejection request for client {{client}} has been rejected on {{date}}",
+
+"pricing": {
+  "title": "Pricing Plans",
+  "subtitle": "Set the price for each available plan",
+  "priceLabel": "Price",
+  "plus": "Good",
+  "standard": "Standard",
+  "premium": "Premium",
+  "save":"Save"
+}
 
 
 
